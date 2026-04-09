@@ -1003,21 +1003,11 @@
 
         <section class="info-box online-box">
           <h2 class="side-title">Multiplayer online</h2>
-          <p class="mini-note">Cole as credenciais do seu projeto Supabase uma vez neste aparelho. Depois, crie ou entre na sala e compartilhe o link com outro celular.</p>
+          <p class="mini-note">Sala pública pronta. Ao entrar no modo Online, o jogo conecta automaticamente ao backend compartilhado e usa o mesmo link para todo mundo.</p>
           <div class="online-grid">
-            <input class="online-input" id="supabaseUrlInput" type="url" placeholder="Supabase URL" />
-            <input class="online-input" id="supabaseKeyInput" type="password" placeholder="Supabase anon key" />
             <div class="online-row">
-              <button class="btn online-btn" id="saveSupabaseBtn">Salvar conexão</button>
-              <button class="btn online-btn" id="createRoomBtn">Criar sala</button>
-            </div>
-            <div class="online-row">
-              <input class="online-input" id="roomCodeInput" type="text" placeholder="Código da sala" />
-              <button class="btn online-btn" id="joinRoomBtn">Entrar</button>
-            </div>
-            <div class="online-row">
-              <button class="btn online-btn" id="copyRoomLinkBtn">Copiar link</button>
-              <button class="btn online-btn" id="leaveRoomBtn">Sair</button>
+              <button class="btn online-btn" id="copyRoomLinkBtn">Copiar link público</button>
+              <button class="btn online-btn" id="leaveRoomBtn">Sair do online</button>
             </div>
             <div class="online-status" id="onlineStatus">Offline</div>
           </div>
@@ -1078,19 +1068,13 @@
     const themeBtn = document.getElementById('themeBtn');
     const boardShell = document.getElementById('boardShell');
     const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
-    const supabaseUrlInput = document.getElementById('supabaseUrlInput');
-    const supabaseKeyInput = document.getElementById('supabaseKeyInput');
-    const saveSupabaseBtn = document.getElementById('saveSupabaseBtn');
-    const createRoomBtn = document.getElementById('createRoomBtn');
-    const joinRoomBtn = document.getElementById('joinRoomBtn');
     const copyRoomLinkBtn = document.getElementById('copyRoomLinkBtn');
     const leaveRoomBtn = document.getElementById('leaveRoomBtn');
-    const roomCodeInput = document.getElementById('roomCodeInput');
     const onlineStatus = document.getElementById('onlineStatus');
 
     const THEME_KEY = 'sjv-theme';
-    const SUPABASE_URL_KEY = 'sjv-supabase-url';
-    const SUPABASE_KEY_KEY = 'sjv-supabase-key';
+    const SUPABASE_URL = 'https://wwegguijtwanuuxcbwly.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_so3W_P7FzbSrnrhxYZghkw_TcjEhp71';
     const CLIENT_ID_KEY = 'sjv-client-id';
     const ROOM_ID_KEY = 'sjv-room-id';
     const AI_SEARCH = {
@@ -1122,8 +1106,8 @@
         roomId: '',
         version: 0,
         clientId: '',
-        supabaseUrl: '',
-        supabaseKey: '',
+        supabaseUrl: SUPABASE_URL,
+        supabaseKey: SUPABASE_KEY,
         pollTimer: null,
         syncTimer: null,
         lastError: '',
@@ -1193,27 +1177,9 @@
     }
 
     function getSupabaseConfig() {
-      const url = (state.online.supabaseUrl || localStorage.getItem(SUPABASE_URL_KEY) || '').trim().replace(/\/$/, '');
-      const key = (state.online.supabaseKey || localStorage.getItem(SUPABASE_KEY_KEY) || '').trim();
+      const url = (state.online.supabaseUrl || SUPABASE_URL || '').trim().replace(/\/$/, '');
+      const key = (state.online.supabaseKey || SUPABASE_KEY || '').trim();
       return { url, key };
-    }
-
-    function saveSupabaseConfig(url, key) {
-      const cleanUrl = url.trim().replace(/\/$/, '');
-      const cleanKey = key.trim();
-      state.online.supabaseUrl = cleanUrl;
-      state.online.supabaseKey = cleanKey;
-      localStorage.setItem(SUPABASE_URL_KEY, cleanUrl);
-      localStorage.setItem(SUPABASE_KEY_KEY, cleanKey);
-      supabaseUrlInput.value = cleanUrl;
-      supabaseKeyInput.value = cleanKey;
-    }
-
-    function loadSupabaseConfig() {
-      supabaseUrlInput.value = localStorage.getItem(SUPABASE_URL_KEY) || '';
-      supabaseKeyInput.value = localStorage.getItem(SUPABASE_KEY_KEY) || '';
-      state.online.supabaseUrl = supabaseUrlInput.value.trim().replace(/\/$/, '');
-      state.online.supabaseKey = supabaseKeyInput.value.trim();
     }
 
     function loadClientId() {
@@ -1229,13 +1195,12 @@
     }
 
     function updateOnlineControls() {
-      roomCodeInput.value = state.online.roomId || localStorage.getItem(ROOM_ID_KEY) || '';
       if (!state.online.active) {
-        setOnlineStatus('Offline', '');
+        setOnlineStatus('Online público desligado', '');
         return;
       }
       const roleText = state.online.role ? `Você é ${state.online.role}` : 'Sem papel definido';
-      const roomText = state.online.roomId ? `Sala ${state.online.roomId}` : 'Sala não conectada';
+      const roomText = state.online.roomId ? `Sala pública ${state.online.roomId}` : 'Sala pública nova';
       const syncText = state.online.lastSyncAt ? `Atualizado ${new Date(state.online.lastSyncAt).toLocaleTimeString()}` : 'Sincronizando';
       const statusTone = state.online.connected ? 'ok' : 'warn';
       setOnlineStatus(`${roomText} · ${roleText} · ${syncText}`, statusTone);
@@ -1261,14 +1226,27 @@
       return url.toString();
     }
 
-    function roomRoomIdFromUrl() {
-      return new URL(window.location.href).searchParams.get('room') || '';
+    function getPreferredRoomId() {
+      const fromUrl = new URL(window.location.href).searchParams.get('room') || '';
+      const fromStorage = localStorage.getItem(ROOM_ID_KEY) || '';
+      return (fromUrl || fromStorage).trim().toUpperCase();
+    }
+
+    async function ensureOnlineRoom() {
+      if (state.online.connected || state.online.pendingCommit) return;
+      const roomId = getPreferredRoomId() || makeId('R').toUpperCase();
+      state.online.pendingCommit = true;
+      try {
+        await connectOnlineState(roomId, !getPreferredRoomId());
+      } finally {
+        state.online.pendingCommit = false;
+      }
     }
 
     async function copyCurrentRoomLink() {
-      const roomId = (state.online.roomId || roomCodeInput.value || '').trim().toUpperCase();
+      const roomId = (state.online.roomId || getPreferredRoomId()).trim().toUpperCase();
       if (!roomId) {
-        setOnlineStatus('Entre ou crie uma sala antes de copiar o link.', 'warn');
+        setOnlineStatus('Sala pública indisponível.', 'warn');
         return;
       }
       const link = roomLink(roomId);
@@ -1976,16 +1954,14 @@
     async function connectOnlineState(roomId, createFresh = false) {
       const { url, key } = getSupabaseConfig();
       if (!url || !key) {
-        setOnlineStatus('Defina URL e anon key do Supabase primeiro.', 'bad');
+        setOnlineStatus('Backend Supabase indisponível.', 'bad');
         return;
       }
       state.online.supabaseUrl = url;
       state.online.supabaseKey = key;
-      localStorage.setItem(SUPABASE_URL_KEY, url);
-      localStorage.setItem(SUPABASE_KEY_KEY, key);
-      const cleanRoomId = roomId.trim().toUpperCase();
+      const cleanRoomId = (roomId || makeId('R')).trim().toUpperCase();
       if (!cleanRoomId) {
-        setOnlineStatus('Informe um código de sala.', 'warn');
+        setOnlineStatus('Sala pública inválida.', 'warn');
         return;
       }
 
@@ -2051,35 +2027,10 @@
       state.online.version = 0;
       state.online.lastSyncAt = null;
       localStorage.removeItem(ROOM_ID_KEY);
-      loadSupabaseConfig();
-      setOnlineStatus('Offline', '');
+      setOnlineStatus('Online público desligado', '');
       state.mode = 'pvp';
       updateModeButtons();
       render();
-    }
-
-    async function createOnlineRoom() {
-      const roomId = makeId('R').toUpperCase();
-      await connectOnlineState(roomId, true);
-      roomCodeInput.value = roomId;
-      updateOnlineControls();
-    }
-
-    async function joinOnlineRoom() {
-      const roomId = roomCodeInput.value.trim().toUpperCase();
-      if (!roomId) {
-        setOnlineStatus('Digite um código de sala.', 'warn');
-        return;
-      }
-      await connectOnlineState(roomId, false);
-    }
-
-    function maybeAutoJoinRoom() {
-      const roomId = roomRoomIdFromUrl().trim().toUpperCase() || localStorage.getItem(ROOM_ID_KEY) || '';
-      if (roomId && state.online.supabaseUrl && state.online.supabaseKey) {
-        roomCodeInput.value = roomId;
-        void connectOnlineState(roomId, false);
-      }
     }
 
     function isAiPlayer(player) {
@@ -2101,6 +2052,14 @@
       state.mode = mode;
       updateModeButtons();
       render();
+      if (mode === 'online') {
+        state.online.active = true;
+        void ensureOnlineRoom();
+      } else {
+        state.online.active = false;
+        state.online.connected = false;
+        stopOnlinePolling();
+      }
       scheduleAiTurn();
     }
 
@@ -2399,24 +2358,9 @@
     });
 
     loadTheme();
-    loadSupabaseConfig();
     loadClientId();
-    maybeAutoJoinRoom();
-    saveSupabaseBtn.addEventListener('click', () => {
-      saveSupabaseConfig(supabaseUrlInput.value, supabaseKeyInput.value);
-      setOnlineStatus('Conexão Supabase salva neste aparelho.', 'ok');
-      updateOnlineControls();
-    });
-    createRoomBtn.addEventListener('click', () => { void createOnlineRoom(); });
-    joinRoomBtn.addEventListener('click', () => { void joinOnlineRoom(); });
     copyRoomLinkBtn.addEventListener('click', () => { void copyCurrentRoomLink(); });
     leaveRoomBtn.addEventListener('click', () => { void leaveOnlineRoom(); });
-    roomCodeInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        void joinOnlineRoom();
-      }
-    });
     resetMatch();
   </script>
 </body>
