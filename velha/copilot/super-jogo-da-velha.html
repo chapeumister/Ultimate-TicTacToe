@@ -276,6 +276,34 @@
       gap: 8px;
     }
 
+    .time-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .time-btn {
+      min-height: 42px;
+      background: #171717;
+      border-color: var(--line);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .time-btn.active {
+      background: rgba(0, 200, 150, 0.12);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
     .ai-difficulty-btn {
       min-height: 42px;
       background: #171717;
@@ -351,7 +379,7 @@
     }
 
     .status-strip {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .presence-grid,
@@ -1067,6 +1095,16 @@
             <button class="btn ai-difficulty-btn" data-ai-difficulty="insane">Imbatível</button>
           </div>
         </section>
+
+        <section class="time-group" aria-label="Tempo por turno">
+          <div class="mini-label">Tempo</div>
+          <div class="time-row">
+            <button class="btn time-btn" data-turn-time="0">Off</button>
+            <button class="btn time-btn" data-turn-time="30">30s</button>
+            <button class="btn time-btn active" data-turn-time="60">60s</button>
+            <button class="btn time-btn" data-turn-time="120">120s</button>
+          </div>
+        </section>
       </aside>
 
       <section class="board-panel">
@@ -1089,6 +1127,10 @@
           <div class="card">
             <div class="label">Resultado</div>
             <div class="value" id="resultText"></div>
+          </div>
+          <div class="card">
+            <div class="label">Tempo</div>
+            <div class="value" id="timeText"></div>
           </div>
         </div>
 
@@ -1145,6 +1187,7 @@
     const scoreX = document.getElementById('scoreX');
     const scoreO = document.getElementById('scoreO');
     const scoreD = document.getElementById('scoreD');
+    const timeText = document.getElementById('timeText');
     const macroX = document.getElementById('macroX');
     const macroO = document.getElementById('macroO');
     const macroD = document.getElementById('macroD');
@@ -1163,6 +1206,7 @@
     const leaveRoomBtn = document.getElementById('leaveRoomBtn');
     const roomIdInput = document.getElementById('roomIdInput');
     const aiDifficultyButtons = Array.from(document.querySelectorAll('.ai-difficulty-btn'));
+    const timeButtons = Array.from(document.querySelectorAll('.time-btn'));
     const onlineStatus = document.getElementById('onlineStatus');
     const heroRoomLabel = document.getElementById('heroRoomLabel');
     const roomCodeText = document.getElementById('roomCodeText');
@@ -1191,6 +1235,7 @@
       insane: { label: 'Imbatível', maxDepth: 10, deadline: 260, poolSize: 999, randomness: 0, blockChance: 1, search: true, exact: true, fullWidth: true },
     };
     const aiCache = new Map();
+    const TURN_TIME_OPTIONS = [0, 30, 60, 120];
     const state = {
       boards: [],
       startingPlayer: 'X',
@@ -1206,8 +1251,11 @@
       lastMove: null,
       mode: 'pvp',
       aiDifficulty: 'hard',
+      turnTimeLimitSec: 60,
+      turnDeadlineAt: null,
       aiTimer: null,
       aiBusy: false,
+      turnTimer: null,
       online: {
         active: false,
         connected: false,
@@ -1260,6 +1308,8 @@
         history: state.history,
         scores: state.scores,
         lastMove: state.lastMove,
+        turnTimeLimitSec: state.turnTimeLimitSec,
+        turnDeadlineAt: state.turnDeadlineAt,
       });
     }
 
@@ -1274,6 +1324,8 @@
       state.history = snapshot.history;
       state.scores = snapshot.scores;
       state.lastMove = snapshot.lastMove;
+      state.turnTimeLimitSec = typeof snapshot.turnTimeLimitSec === 'number' ? snapshot.turnTimeLimitSec : 0;
+      state.turnDeadlineAt = snapshot.turnDeadlineAt ?? null;
     }
 
     function syncPayloadFromState() {
@@ -1478,10 +1530,82 @@
       state.history = [];
       state.moveStack = [];
       state.lastMove = null;
+      state.turnDeadlineAt = state.turnTimeLimitSec > 0 ? Date.now() + (state.turnTimeLimitSec * 1000) : null;
       render();
       if (state.mode === 'online' && state.online.connected) {
         queueOnlineSync();
       }
+    }
+
+    function setTurnTimeLimit(seconds) {
+      const limit = TURN_TIME_OPTIONS.includes(seconds) ? seconds : 0;
+      state.turnTimeLimitSec = limit;
+      state.turnDeadlineAt = !state.gameOver && limit > 0 ? Date.now() + (limit * 1000) : null;
+      updateTimeButtons();
+      render();
+      if (state.mode === 'online' && state.online.connected) {
+        queueOnlineSync();
+      }
+    }
+
+    function updateTimeButtons() {
+      timeButtons.forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.turnTime) === state.turnTimeLimitSec);
+      });
+    }
+
+    function formatTurnTime(ms) {
+      if (ms === null) return 'Sem tempo';
+      const total = Math.max(0, Math.ceil(ms / 1000));
+      const minutes = Math.floor(total / 60);
+      const seconds = total % 60;
+      return minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')}` : `${seconds}s`;
+    }
+
+    function currentTurnRemainingMs() {
+      if (state.gameOver || state.turnTimeLimitSec <= 0 || state.turnDeadlineAt === null) return null;
+      return state.turnDeadlineAt - Date.now();
+    }
+
+    function applyTurnTimeout() {
+      if (state.gameOver || state.turnTimeLimitSec <= 0) return;
+      const remaining = currentTurnRemainingMs();
+      if (remaining === null || remaining > 0) return;
+      const loser = state.currentPlayer;
+      const winner = loser === 'X' ? 'O' : 'X';
+      state.gameOver = true;
+      state.winner = winner;
+      state.draw = false;
+      state.globalLine = [];
+      state.history.unshift(`${loser} perdeu por tempo.`);
+      state.history = state.history.slice(0, 8);
+      state.scores[winner] += 1;
+      state.turnDeadlineAt = null;
+      render();
+      if (state.mode === 'online' && state.online.connected) queueOnlineSync();
+    }
+
+    function syncTurnTimer() {
+      if (state.gameOver || state.turnTimeLimitSec <= 0) {
+        state.turnDeadlineAt = null;
+        return;
+      }
+      if (!state.turnDeadlineAt) {
+        state.turnDeadlineAt = Date.now() + (state.turnTimeLimitSec * 1000);
+      }
+    }
+
+    function tickTurnTimer() {
+      if (state.gameOver || state.turnTimeLimitSec <= 0) {
+        timeText.textContent = 'Off';
+        return;
+      }
+      const remaining = currentTurnRemainingMs();
+      if (remaining !== null && remaining <= 0) {
+        applyTurnTimeout();
+        return;
+      }
+      timeText.textContent = formatTurnTime(remaining);
     }
 
     function getPlayableBoards() {
@@ -2175,6 +2299,8 @@
         history: roomState.history || [],
         scores: roomState.scores || { X: 0, O: 0, D: 0 },
         lastMove: roomState.lastMove || null,
+        turnTimeLimitSec: typeof roomState.turnTimeLimitSec === 'number' ? roomState.turnTimeLimitSec : 0,
+        turnDeadlineAt: roomState.turnDeadlineAt ?? null,
       };
     }
 
@@ -2369,6 +2495,7 @@
         stopOnlinePolling();
         updateOnlineControls();
       }
+      syncTurnTimer();
       scheduleAiTurn();
     }
 
@@ -2416,6 +2543,7 @@
           state.nextBoard = null;
         }
         state.currentPlayer = player === 'X' ? 'O' : 'X';
+        state.turnDeadlineAt = state.turnTimeLimitSec > 0 ? Date.now() + (state.turnTimeLimitSec * 1000) : null;
       }
 
       render();
@@ -2504,6 +2632,8 @@
     }
 
     function render() {
+      syncTurnTimer();
+      tickTurnTimer();
       const playableBoards = getPlayableBoards();
       const freeChoice = !state.gameOver && (state.nextBoard === null || state.boards[state.nextBoard]?.status !== 'ongoing');
       const message = getMessage();
@@ -2670,6 +2800,9 @@
     aiDifficultyButtons.forEach((btn) => {
       btn.addEventListener('click', () => setAiDifficulty(btn.dataset.aiDifficulty));
     });
+    timeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setTurnTimeLimit(Number(btn.dataset.turnTime)));
+    });
     themeBtn.addEventListener('click', () => {
       const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
       setTheme(next);
@@ -2725,6 +2858,7 @@
     loadTheme();
     loadClientId();
     updateAiDifficultyButtons();
+    updateTimeButtons();
     resetMatch();
     roomIdInput.value = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || localStorage.getItem(ROOM_ID_KEY) || '');
     const bootRoomId = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || localStorage.getItem(ROOM_ID_KEY) || '');
@@ -2735,6 +2869,9 @@
       render();
       void connectOnlineState(bootRoomId, false);
     }
+    setInterval(() => {
+      tickTurnTimer();
+    }, 250);
   </script>
 </body>
 </html>
