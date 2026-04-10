@@ -625,6 +625,8 @@
       color: var(--text);
       transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease, opacity .15s ease;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
     }
     body[data-theme="dark"] .cell { background: rgba(255,255,255,.05); border-color: rgba(182,203,255,.08); }
 
@@ -885,8 +887,57 @@
       .board-shell { padding: 10px; }
       .board-grid { gap: 10px; }
       .mini-board { padding: 8px; border-radius: 16px; }
-      .cell { border-radius: 10px; }
+      .mini-cells { gap: 4px; }
+      .cell {
+        border-radius: 10px;
+        font-size: clamp(1.75rem, 6.8vw, 2.8rem);
+        font-weight: 950;
+        letter-spacing: -0.08em;
+        -webkit-text-stroke: 1px color-mix(in oklab, currentColor 72%, var(--text));
+        text-shadow: 0 1px 0 rgba(255,255,255,.28), 0 4px 10px rgba(0,0,0,.10);
+      }
       .controls { justify-content: flex-start; }
+    }
+
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 12px, 1440px); padding-top: 8px; }
+      .hero { padding: 14px; margin-bottom: 12px; }
+      .hero-top { gap: 12px; }
+      h1 { font-size: clamp(1.7rem, 8vw, 2.25rem); }
+      .subtitle { font-size: .92rem; }
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .controls .btn,
+      .mode-group {
+        width: 100%;
+      }
+      .mode-row { grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
+      .board-panel, .side-panel { padding: 12px; border-radius: 20px; }
+      .status-strip { gap: 8px; }
+      .card { min-height: 72px; padding: 12px 13px; }
+      .board-shell { padding: 6px; border-radius: 18px; }
+      .board-grid { gap: 6px; }
+      .mini-board { padding: 5px; border-radius: 14px; }
+      .mini-header { margin-bottom: 6px; }
+      .mini-title { font-size: 10px; letter-spacing: .1em; }
+      .mini-tag { padding: 4px 7px; font-size: 10px; }
+      .mini-cells { gap: 3px; }
+      .cell {
+        border-radius: 8px;
+        font-size: clamp(1.9rem, 8.8vw, 3rem);
+        font-weight: 950;
+        letter-spacing: -0.09em;
+        -webkit-text-stroke: 1.15px color-mix(in oklab, currentColor 74%, var(--text));
+        text-shadow: 0 1px 0 rgba(255,255,255,.3), 0 4px 10px rgba(0,0,0,.12);
+      }
+      .legend-row { gap: 6px; }
+      .legend-chip { padding: 6px 9px; font-size: 11px; }
+      .macro-stats, .score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .message, .info-box { padding: 12px; }
+      .history { max-height: 220px; }
     }
   </style>
 </head>
