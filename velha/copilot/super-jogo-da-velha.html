@@ -1075,6 +1075,7 @@
     const THEME_KEY = 'sjv-theme';
     const SUPABASE_URL = 'https://wwegguijtwanuuxcbwly.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_so3W_P7FzbSrnrhxYZghkw_TcjEhp71';
+    const PUBLIC_ROOM_ID = 'PUBLIC';
     const CLIENT_ID_KEY = 'sjv-client-id';
     const ROOM_ID_KEY = 'sjv-room-id';
     const AI_SEARCH = {
@@ -1229,22 +1230,22 @@
     function getPreferredRoomId() {
       const fromUrl = new URL(window.location.href).searchParams.get('room') || '';
       const fromStorage = localStorage.getItem(ROOM_ID_KEY) || '';
-      return (fromUrl || fromStorage).trim().toUpperCase();
+      return (fromUrl || fromStorage || PUBLIC_ROOM_ID).trim().toUpperCase();
     }
 
     async function ensureOnlineRoom() {
       if (state.online.connected || state.online.pendingCommit) return;
-      const roomId = getPreferredRoomId() || makeId('R').toUpperCase();
+      const roomId = PUBLIC_ROOM_ID;
       state.online.pendingCommit = true;
       try {
-        await connectOnlineState(roomId, !getPreferredRoomId());
+        await connectOnlineState(roomId, false);
       } finally {
         state.online.pendingCommit = false;
       }
     }
 
     async function copyCurrentRoomLink() {
-      const roomId = (state.online.roomId || getPreferredRoomId()).trim().toUpperCase();
+      const roomId = PUBLIC_ROOM_ID;
       if (!roomId) {
         setOnlineStatus('Sala pública indisponível.', 'warn');
         return;
@@ -2359,9 +2360,12 @@
 
     loadTheme();
     loadClientId();
+    state.mode = 'online';
+    state.online.active = true;
     copyRoomLinkBtn.addEventListener('click', () => { void copyCurrentRoomLink(); });
     leaveRoomBtn.addEventListener('click', () => { void leaveOnlineRoom(); });
     resetMatch();
+    void ensureOnlineRoom();
   </script>
 </body>
 </html>
