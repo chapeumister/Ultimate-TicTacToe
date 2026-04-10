@@ -6,52 +6,27 @@
   <title>Super Jogo da Velha</title>
   <style>
     :root {
-      --bg: #141615;
-      --bg-soft: #1a1d1b;
-      --panel: #202421;
-      --panel-2: #262b27;
-      --panel-3: #2d332e;
-      --line: #363d38;
-      --line-strong: #475047;
-      --text: #f1f2eb;
-      --muted: #aab0a7;
-      --muted-strong: #c8cdc4;
-      --accent: #7f8d62;
-      --accent-strong: #9aaa78;
-      --accent-soft: rgba(154, 170, 120, 0.14);
-      --x: #f2f3ee;
-      --o: #95a86f;
-      --good: #9aaa78;
-      --warn: #c6a86a;
-      --danger: #bd6d5d;
-      --shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
-      --radius-xl: 20px;
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
-      --grid-gap: 10px;
-    }
-
-    body[data-theme="light"] {
-      --bg: #ece9df;
-      --bg-soft: #dfdbcf;
-      --panel: #f6f1e4;
-      --panel-2: #ede6d6;
-      --panel-3: #e5dcc8;
-      --line: #cbc2b0;
-      --line-strong: #b0a48f;
-      --text: #1d1f1b;
-      --muted: #66685f;
-      --muted-strong: #3a3d35;
-      --accent: #65754c;
-      --accent-strong: #52603d;
-      --accent-soft: rgba(82, 96, 61, 0.12);
-      --x: #161814;
-      --o: #65754c;
-      --good: #65754c;
-      --warn: #9c7740;
-      --danger: #9e5a49;
-      --shadow: 0 14px 40px rgba(54, 43, 26, 0.12);
+      --bg-primary: #0D0D0D;
+      --bg-secondary: #161616;
+      --bg-tertiary: #1F1F1F;
+      --text-primary: #F5F5F5;
+      --text-secondary: #B3B3B3;
+      --text-muted: #707070;
+      --accent: #00C896;
+      --accent-hover: #00E6A8;
+      --accent-pressed: #00A97F;
+      --success: #22C55E;
+      --warning: #FFB547;
+      --error: #FF5C5C;
+      --line: #2A2A2A;
+      --line-strong: #353535;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+      --radius-panel: 14px;
+      --radius-card: 10px;
+      --radius-cell: 4px;
+      --grid-gap: 8px;
+      --x: #F5F5F5;
+      --o: #00C896;
     }
 
     * { box-sizing: border-box; }
@@ -60,17 +35,11 @@
     body {
       margin: 0;
       font-family: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
-      color: var(--text);
+      color: var(--text-primary);
       background:
-        radial-gradient(circle at top center, rgba(154, 170, 120, 0.10), transparent 22rem),
-        linear-gradient(180deg, var(--bg), #111311 70%);
+        radial-gradient(circle at top center, rgba(0, 200, 150, 0.08), transparent 28rem),
+        linear-gradient(180deg, #111111 0%, var(--bg-primary) 55%, #090909 100%);
       transition: background .25s ease, color .25s ease;
-    }
-
-    body[data-theme="light"] {
-      background:
-        radial-gradient(circle at top center, rgba(82, 96, 61, 0.12), transparent 22rem),
-        linear-gradient(180deg, var(--bg), #d9d2c3 70%);
     }
 
     body::before {
@@ -79,15 +48,15 @@
       inset: 0;
       pointer-events: none;
       background:
-        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: .45;
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 92%);
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 52px 52px;
+      opacity: .25;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 82%);
     }
 
     .shell {
-      width: min(1320px, calc(100% - 32px));
+      width: min(1280px, calc(100% - 32px));
       margin: 0 auto;
       padding: 18px 0 28px;
       position: relative;
@@ -100,27 +69,27 @@
     .card,
     .message,
     .info-box {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), var(--panel);
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0)), var(--bg-secondary);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
     }
 
     .hero {
-      border-radius: var(--radius-xl);
-      padding: 18px;
+      border-radius: var(--radius-panel);
+      padding: 20px;
       margin-bottom: 16px;
     }
 
     .hero-top {
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(320px, 430px);
-      gap: 18px;
-      align-items: stretch;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
+      gap: 16px;
+      align-items: end;
     }
 
     .brand {
       display: grid;
-      gap: 14px;
+      gap: 12px;
       align-content: start;
     }
 
@@ -137,105 +106,76 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      min-height: 32px;
-      padding: 0 12px;
+      min-height: 28px;
+      padding: 0 10px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
-      color: var(--muted-strong);
-      font-size: 11px;
+      background: rgba(255,255,255,0.025);
+      color: var(--text-secondary);
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
     }
 
-    .badge.secondary {
-      color: var(--muted);
-      background: rgba(255,255,255,0.02);
+    .badge.live {
+      color: #06110D;
+      background: var(--accent);
+      border-color: var(--accent);
     }
 
     h1 {
       margin: 0;
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: clamp(2.1rem, 4vw, 3.8rem);
-      line-height: .95;
-      letter-spacing: -0.05em;
-      max-width: 9ch;
+      font-size: clamp(1.9rem, 4vw, 3.2rem);
+      line-height: .92;
+      letter-spacing: -.05em;
     }
 
     .subtitle {
       margin: 0;
-      max-width: 54ch;
-      color: var(--muted-strong);
-      font-size: 1rem;
+      max-width: 34ch;
+      color: var(--text-secondary);
+      font-size: .98rem;
       line-height: 1.55;
     }
 
-    .hero-summary {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      max-width: 760px;
-    }
-
-    .hero-metric,
-    .macro-stat,
-    .online-meta,
-    .presence-card,
-    .score,
-    .card {
-      border-radius: var(--radius-md);
-      border: 1px solid var(--line);
-      background: var(--panel-2);
-    }
-
-    .hero-metric {
-      padding: 14px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .kicker,
     .label,
     .mini-label,
-    .stack-heading .eyebrow,
-    .presence-card .label,
-    .online-meta .label,
-    .score .label,
-    .macro-stat .label,
     .card .label,
     .mini-title {
       font-size: 11px;
       font-weight: 800;
       letter-spacing: .12em;
       text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .hero-metric strong {
-      font-size: .98rem;
-      line-height: 1.4;
-      letter-spacing: -.02em;
+      color: var(--text-muted);
     }
 
     .controls {
       display: grid;
       gap: 12px;
-      align-content: start;
+      align-content: end;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .toolbar {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
+      justify-content: flex-end;
       gap: 8px;
     }
 
     .btn {
       appearance: none;
       border: 1px solid var(--line-strong);
-      background: var(--panel-3);
-      color: var(--text);
-      min-height: 44px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 42px;
       padding: 0 14px;
       border-radius: 10px;
       font: inherit;
@@ -246,13 +186,13 @@
 
     .btn:hover {
       transform: translateY(-1px);
-      border-color: var(--accent-strong);
+      border-color: var(--accent-hover);
     }
 
     .btn.primary {
       background: var(--accent);
       border-color: var(--accent);
-      color: #111311;
+      color: #06110D;
     }
 
     .btn.ghost {
@@ -263,18 +203,22 @@
     .btn:focus-visible,
     .cell:focus-visible,
     .online-input:focus-visible {
-      outline: 2px solid var(--accent-strong);
+      outline: 2px solid var(--accent-hover);
       outline-offset: 2px;
     }
 
+    .quick-room,
     .mode-group,
-    .quick-room {
+    .status-banner,
+    .presence-grid,
+    .online-meta-grid,
+    .status-strip {
       display: grid;
       gap: 10px;
       padding: 14px;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-card);
       border: 1px solid var(--line);
-      background: var(--panel-2);
+      background: var(--bg-tertiary);
     }
 
     .quick-room {
@@ -299,10 +243,10 @@
     }
 
     .mode-btn {
-      min-height: 48px;
-      background: #1b1f1c;
+      min-height: 46px;
+      background: #171717;
       border-color: var(--line);
-      color: var(--muted-strong);
+      color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: .06em;
       font-size: 11px;
@@ -310,26 +254,26 @@
     }
 
     .mode-btn.active {
-      background: var(--accent-soft);
-      border-color: var(--accent-strong);
-      color: var(--text);
+      background: rgba(0, 200, 150, 0.12);
+      border-color: var(--accent);
+      color: var(--text-primary);
     }
 
     .mode-btn.ai-hot {
-      background: #8c6b3f;
-      border-color: #8c6b3f;
-      color: #10120f;
+      background: rgba(255, 181, 71, 0.12);
+      border-color: rgba(255, 181, 71, 0.5);
+      color: var(--warning);
     }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+      grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
       gap: 16px;
       align-items: start;
     }
 
     .side-panel {
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-panel);
       padding: 16px;
       display: grid;
       gap: 14px;
@@ -338,7 +282,7 @@
     }
 
     .board-panel {
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-panel);
       padding: 16px;
       display: grid;
       gap: 14px;
@@ -355,7 +299,7 @@
     .side-title,
     .board-panel-header h2 {
       margin: 0;
-      font-size: 1.05rem;
+      font-size: 1rem;
       letter-spacing: -.03em;
     }
 
@@ -364,14 +308,12 @@
     .info-box p,
     .message span {
       margin: 0;
-      color: var(--muted-strong);
+      color: var(--text-secondary);
       line-height: 1.55;
-      font-size: .95rem;
+      font-size: .92rem;
     }
 
     .status-strip,
-    .macro-stats,
-    .score-grid,
     .presence-grid,
     .online-meta-grid {
       display: grid;
@@ -382,102 +324,80 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .macro-stats {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .score-grid,
     .presence-grid,
     .online-meta-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .card,
-    .score,
     .presence-card,
-    .online-meta,
-    .macro-stat {
+    .online-meta {
       padding: 12px;
-      min-height: 76px;
+      min-height: 68px;
       display: grid;
       align-content: center;
       gap: 6px;
+      border-radius: var(--radius-card);
+      border: 1px solid var(--line);
+      background: var(--bg-secondary);
     }
 
     .card .value,
-    .score .num,
-    .macro-stat .num,
     .online-meta strong,
     .presence-card strong {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 800;
       letter-spacing: -.03em;
     }
 
-    .score .num {
-      font-size: 1.5rem;
-    }
-
-    .score.x .num,
-    .macro-stat.x .num,
     .turn-x { color: var(--x); }
-    .score.o .num,
-    .macro-stat.o .num,
     .turn-o { color: var(--o); }
-    .score.d .num,
-    .macro-stat.draw .num,
-    .status-draw { color: var(--warn); }
-    .macro-stat.open .num,
+    .status-draw { color: var(--warning); }
     .turn-free,
-    .status-win { color: var(--accent-strong); }
+    .status-win { color: var(--accent); }
 
     .status-banner {
-      display: grid;
       gap: 5px;
-      padding: 14px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--line);
-      background: var(--panel-2);
     }
 
     .status-banner strong {
-      font-size: 1.02rem;
+      font-size: 1rem;
       letter-spacing: -.03em;
     }
 
     .status-banner span {
-      color: var(--muted-strong);
+      color: var(--text-secondary);
       line-height: 1.5;
     }
 
     .status-banner[data-state="free"] {
-      border-color: rgba(154, 170, 120, 0.55);
-      background: linear-gradient(180deg, rgba(154,170,120,.12), transparent), var(--panel-2);
+      border-color: rgba(0, 200, 150, 0.55);
+      background: linear-gradient(180deg, rgba(0,200,150,.1), transparent), var(--bg-tertiary);
     }
 
     .status-banner[data-state="locked"] {
-      border-color: rgba(198, 168, 106, 0.45);
-      background: linear-gradient(180deg, rgba(198,168,106,.10), transparent), var(--panel-2);
+      border-color: rgba(255, 181, 71, 0.45);
+      background: linear-gradient(180deg, rgba(255,181,71,.1), transparent), var(--bg-tertiary);
     }
 
     .status-banner[data-state="win"] {
-      border-color: rgba(154, 170, 120, 0.62);
-      background: linear-gradient(180deg, rgba(154,170,120,.14), transparent), var(--panel-2);
+      border-color: rgba(34, 197, 94, 0.62);
+      background: linear-gradient(180deg, rgba(34,197,94,.14), transparent), var(--bg-tertiary);
     }
 
     .status-banner[data-state="draw"] {
-      border-color: rgba(189, 109, 93, 0.42);
-      background: linear-gradient(180deg, rgba(189,109,93,.12), transparent), var(--panel-2);
+      border-color: rgba(255, 92, 92, 0.42);
+      background: linear-gradient(180deg, rgba(255,92,92,.1), transparent), var(--bg-tertiary);
     }
 
     .legend-chip.active {
-      border-color: rgba(154, 170, 120, 0.55);
-      color: var(--accent-strong);
+      border-color: rgba(0, 200, 150, 0.55);
+      color: var(--accent);
     }
 
     .legend-chip.free {
-      border-color: rgba(198, 168, 106, 0.5);
-      color: var(--warn);
+      border-color: rgba(255, 181, 71, 0.5);
+      color: var(--warning);
     }
 
     .legend-chip.win {
@@ -486,29 +406,24 @@
     }
 
     .legend-chip.draw {
-      border-color: rgba(149, 168, 111, 0.35);
-      color: var(--o);
-    }
-
-    .board-meta {
-      display: grid;
-      gap: 10px;
+      border-color: rgba(255, 92, 92, 0.35);
+      color: var(--error);
     }
 
     .board-shell {
       position: relative;
-      padding: 12px;
-      border-radius: 16px;
+      padding: 10px;
+      border-radius: 12px;
       border: 1px solid var(--line);
-      background: #181b18;
+      background: #111111;
       overflow: hidden;
     }
 
     .board-shell::before {
       content: "";
       position: absolute;
-      inset: 12px;
-      border-radius: 12px;
+      inset: 10px;
+      border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.03);
       pointer-events: none;
     }
@@ -524,21 +439,21 @@
 
     .mini-board {
       position: relative;
-      padding: 8px;
-      border-radius: 10px;
+      padding: 6px;
+      border-radius: 6px;
       border: 1px solid var(--line);
-      background: #232723;
+      background: #171717;
       transition: transform .14s ease, border-color .14s ease, opacity .14s ease;
       overflow: hidden;
     }
 
     .mini-board.required {
-      border-color: var(--accent-strong);
-      box-shadow: inset 0 0 0 1px rgba(154,170,120,.28);
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(0,200,150,.24);
     }
 
     .mini-board.available {
-      border-color: rgba(198,168,106,.35);
+      border-color: rgba(255,181,71,.35);
     }
 
     .mini-board.free-choice {
@@ -551,16 +466,16 @@
 
     .mini-board.won-x {
       border-color: rgba(241,242,235,.35);
-      background: #292d28;
+      background: #1c1c1c;
     }
 
     .mini-board.won-o {
-      border-color: rgba(149,168,111,.48);
-      background: #262d24;
+      border-color: rgba(0,200,150,.48);
+      background: #13201c;
     }
 
     .mini-board.drawn {
-      border-color: rgba(198,168,106,.45);
+      border-color: rgba(255,181,71,.45);
     }
 
     .mini-board.last-board {
@@ -568,7 +483,7 @@
     }
 
     .mini-board.macro-win {
-      box-shadow: inset 0 0 0 1px rgba(154,170,120,.2), 0 0 0 1px rgba(154,170,120,.2);
+      box-shadow: inset 0 0 0 1px rgba(0,200,150,.18), 0 0 0 1px rgba(0,200,150,.18);
     }
 
     .mini-header {
@@ -604,10 +519,10 @@
       display: grid;
       place-items: center;
       aspect-ratio: 1 / 1;
-      border-radius: 7px;
-      border: 1px solid #343b35;
-      background: #161916;
-      color: var(--text);
+      border-radius: var(--radius-cell);
+      border: 1px solid #2d2d2d;
+      background: #0f0f0f;
+      color: var(--text-primary);
       font-size: clamp(1.35rem, 3.3vw, 2.2rem);
       font-weight: 900;
       line-height: 1;
@@ -617,8 +532,8 @@
 
     .cell:hover:not(:disabled) {
       transform: translateY(-1px);
-      border-color: var(--accent-strong);
-      background: #1c201c;
+      border-color: var(--accent);
+      background: #151515;
     }
 
     .cell:disabled {
@@ -627,7 +542,7 @@
     }
 
     .cell.playable:not(:disabled) {
-      border-color: #535b52;
+      border-color: #4f4f4f;
     }
 
     .cell.x {
@@ -639,12 +554,12 @@
     }
 
     .cell.last-move {
-      background: #21261f;
+      background: #171d1a;
     }
 
     .cell.win-cell {
-      border-color: var(--accent-strong);
-      background: #262d24;
+      border-color: var(--accent);
+      background: #10231d;
     }
 
     .mini-board-status {
@@ -657,7 +572,7 @@
       font-size: clamp(1.8rem, 6vw, 3.1rem);
       font-weight: 900;
       letter-spacing: -0.08em;
-      color: rgba(241,242,235,0.1);
+      color: rgba(245,245,245,0.12);
     }
 
     .mini-board.won-x .mini-board-status,
@@ -667,25 +582,25 @@
     }
 
     .mini-board.won-o .mini-board-status {
-      color: rgba(149,168,111,0.18);
+      color: rgba(0,200,150,0.18);
     }
 
     .mini-board.drawn .mini-board-status {
       font-size: 1rem;
       letter-spacing: .15em;
-      color: rgba(198,168,106,0.2);
+      color: rgba(255,181,71,0.2);
     }
 
     .message,
     .info-box {
       padding: 14px;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-card);
       display: grid;
       gap: 10px;
     }
 
     .message {
-      background: linear-gradient(180deg, rgba(154,170,120,.10), transparent), var(--panel);
+      background: linear-gradient(180deg, rgba(0,200,150,.08), transparent), var(--bg-secondary);
     }
 
     .message strong {
@@ -721,14 +636,14 @@
       min-height: 44px;
       border-radius: 10px;
       border: 1px solid var(--line-strong);
-      background: #171917;
-      color: var(--text);
+      background: #111111;
+      color: var(--text-primary);
       padding: 0 12px;
       font: inherit;
     }
 
     .online-input::placeholder {
-      color: var(--muted);
+      color: var(--text-muted);
     }
 
     .online-status {
@@ -736,8 +651,8 @@
       padding: 10px 12px;
       border-radius: 10px;
       border: 1px solid var(--line);
-      background: var(--panel-2);
-      color: var(--muted-strong);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
       gap: 10px;
@@ -749,30 +664,30 @@
       width: 9px;
       height: 9px;
       border-radius: 999px;
-      background: var(--muted);
+      background: var(--text-muted);
       flex: none;
     }
 
     .online-status.ok {
-      color: var(--good);
-      border-color: rgba(154,170,120,.45);
+      color: var(--success);
+      border-color: rgba(34,197,94,.45);
     }
 
-    .online-status.ok::before { background: var(--good); }
+    .online-status.ok::before { background: var(--success); }
 
     .online-status.warn {
-      color: var(--warn);
-      border-color: rgba(198,168,106,.35);
+      color: var(--warning);
+      border-color: rgba(255,181,71,.35);
     }
 
-    .online-status.warn::before { background: var(--warn); }
+    .online-status.warn::before { background: var(--warning); }
 
     .online-status.bad {
-      color: var(--danger);
-      border-color: rgba(189,109,93,.35);
+      color: var(--error);
+      border-color: rgba(255,92,92,.35);
     }
 
-    .online-status.bad::before { background: var(--danger); }
+    .online-status.bad::before { background: var(--error); }
 
     .history {
       margin: 0;
@@ -781,14 +696,26 @@
       gap: 7px;
       max-height: 180px;
       overflow: auto;
-      color: var(--muted);
+      color: var(--text-secondary);
       font-size: .92rem;
     }
 
     .footer {
-      color: var(--muted);
+      color: var(--text-muted);
       line-height: 1.5;
       font-size: .94rem;
+    }
+
+    .sr-panel {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     @media (max-width: 1080px) {
@@ -808,6 +735,10 @@
         padding: 10px 0 20px;
       }
 
+      .hero-top {
+        gap: 12px;
+      }
+
       .board-panel {
         order: 1;
       }
@@ -819,7 +750,7 @@
       .hero,
       .board-panel,
       .side-panel {
-        border-radius: 16px;
+        border-radius: 12px;
       }
 
       .hero {
@@ -827,24 +758,29 @@
       }
 
       h1 {
-        max-width: none;
         font-size: clamp(2rem, 10vw, 2.8rem);
       }
 
-      .hero-summary,
       .status-strip,
-      .macro-stats,
-      .score-grid,
       .presence-grid,
       .online-meta-grid {
         grid-template-columns: 1fr;
       }
 
-      .toolbar,
       .mode-row,
       .online-form-top,
       .online-action-grid {
         grid-template-columns: 1fr;
+      }
+
+      .toolbar,
+      .top-actions {
+        justify-content: stretch;
+      }
+
+      .toolbar .btn,
+      .top-actions .btn {
+        width: 100%;
       }
 
       .quick-room {
@@ -856,12 +792,12 @@
       }
 
       .mini-board {
-        padding: 6px;
-        border-radius: 8px;
+        padding: 5px;
+        border-radius: 5px;
       }
 
       .cell {
-        border-radius: 6px;
+        border-radius: 3px;
         font-size: clamp(1.15rem, 8vw, 1.8rem);
       }
 
@@ -876,53 +812,30 @@
     <header class="hero">
       <div class="hero-top">
         <div class="brand">
+          <h1>Jogo da Velha Online</h1>
           <div class="badge-row">
-            <span class="badge">Lobby escuro</span>
-            <span class="badge secondary">Sala por link</span>
-            <span class="badge secondary">Desktop + celular</span>
+            <span class="badge live">Online</span>
+            <span class="badge">Sala por codigo</span>
+            <span class="badge">Visual minimalista</span>
           </div>
-          <h1>Ultimate Tic-Tac-Toe</h1>
-          <p class="subtitle">Refatorado para parecer mais lobby competitivo do que painel explicativo. O foco agora e entrar em partida, copiar o link da sala e jogar sem ruido visual.</p>
-          <div class="hero-summary">
-            <div class="hero-metric">
-              <span class="kicker">Sala privada</span>
-              <strong>Crie um codigo, mande o link e entre direto do celular ou do desktop.</strong>
-            </div>
-            <div class="hero-metric">
-              <span class="kicker">Treino</span>
-              <strong>Use local, bot ou assistir para testar o tabuleiro antes de chamar alguem.</strong>
-            </div>
-            <div class="hero-metric">
-              <span class="kicker">Direcao visual</span>
-              <strong>Paleta quase preta, cantos menores e hierarquia mais parecida com lobby de jogo.</strong>
-            </div>
-          </div>
+          <p class="subtitle">Crie uma sala, envie o link e jogue. O resto saiu da frente.</p>
         </div>
 
         <div class="controls">
+          <div class="top-actions">
+            <div class="quick-room">
+              <div class="quick-room-copy">
+                <span class="mini-label">Sala atual</span>
+                <strong id="heroRoomLabel">Local offline</strong>
+              </div>
+              <button class="btn" id="copyRoomLinkBtn">Copiar link</button>
+            </div>
+          </div>
+
           <div class="toolbar">
             <button class="btn primary" id="newGameBtn">Nova partida</button>
             <button class="btn" id="undoBtn">Voltar lance</button>
-            <button class="btn" id="themeBtn">Modo claro</button>
-          </div>
-
-          <div class="mode-group" aria-label="Modo de jogo">
-            <div class="mini-label">Jogar</div>
-            <div class="mode-row">
-              <button class="btn mode-btn active" data-mode="pvp" id="modePvp">Local</button>
-              <button class="btn mode-btn" data-mode="online" id="modeOnline">Sala</button>
-              <button class="btn mode-btn" data-mode="battle" id="modeBattle">Bot x Bot</button>
-              <button class="btn mode-btn" data-mode="ai-x" id="modeAiX">Bot X</button>
-              <button class="btn mode-btn" data-mode="ai-o" id="modeAiO">Bot O</button>
-            </div>
-          </div>
-
-          <div class="quick-room">
-            <div class="quick-room-copy">
-              <span class="mini-label">Sala ativa</span>
-              <strong id="heroRoomLabel">Local offline</strong>
-            </div>
-            <button class="btn" id="copyRoomLinkBtn">Copiar link</button>
+            <button class="btn ghost" id="themeBtn" hidden>Tema</button>
           </div>
         </div>
       </div>
@@ -932,15 +845,17 @@
       <aside class="side-panel">
         <section class="info-box online-box">
           <div class="stack-heading">
-            <span class="eyebrow">Online</span>
-            <h2 class="side-title">Entrar em sala</h2>
+            <div>
+              <div class="mini-label">Online</div>
+              <h2 class="side-title">Entrar em sala</h2>
+            </div>
           </div>
-          <p class="mini-note">O fluxo principal agora e simples: digite um codigo, crie uma sala ou reconecte. O assento X/O continua sendo controlado pelo Supabase.</p>
+          <p class="mini-note">Digite um codigo ou crie uma sala nova.</p>
 
           <div class="online-form">
             <div class="online-form-top">
               <input class="online-input" id="roomIdInput" type="text" inputmode="text" maxlength="16" placeholder="CODIGO DA SALA" autocomplete="off" />
-              <button class="btn" id="joinRoomBtn">Entrar</button>
+              <button class="btn primary" id="joinRoomBtn">Entrar</button>
             </div>
             <div class="online-action-grid">
               <button class="btn" id="createRoomBtn">Criar sala</button>
@@ -982,38 +897,15 @@
           </div>
         </section>
 
-        <section class="message" aria-live="polite">
-          <strong id="messageTitle"></strong>
-          <span id="messageBody"></span>
-        </section>
-
-        <section class="info-box">
-          <div class="stack-heading">
-            <span class="eyebrow">Sessao</span>
-            <h2 class="side-title">Placar rapido</h2>
+        <section class="mode-group" aria-label="Modo de jogo">
+          <div class="mini-label">Modo</div>
+          <div class="mode-row">
+            <button class="btn mode-btn active" data-mode="pvp" id="modePvp">Local</button>
+            <button class="btn mode-btn" data-mode="online" id="modeOnline">Sala</button>
+            <button class="btn mode-btn" data-mode="battle" id="modeBattle">Bot x Bot</button>
+            <button class="btn mode-btn" data-mode="ai-x" id="modeAiX">Bot X</button>
+            <button class="btn mode-btn" data-mode="ai-o" id="modeAiO">Bot O</button>
           </div>
-          <div class="score-grid">
-            <div class="score x">
-              <div class="label">X</div>
-              <div class="num" id="scoreX">0</div>
-            </div>
-            <div class="score o">
-              <div class="label">O</div>
-              <div class="num" id="scoreO">0</div>
-            </div>
-            <div class="score d">
-              <div class="label">Empates</div>
-              <div class="num" id="scoreD">0</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="info-box">
-          <div class="stack-heading">
-            <span class="eyebrow">Atividade</span>
-            <h2 class="side-title">Ultimos lances</h2>
-          </div>
-          <ol class="history" id="historyList"></ol>
         </section>
       </aside>
 
@@ -1021,7 +913,7 @@
         <div class="board-panel-header">
           <div>
             <h2>Tabuleiro</h2>
-            <p>Visual mais limpo, menos explicacao na tela e leitura mais direta do estado da partida.</p>
+            <p>Somente o estado essencial da partida.</p>
           </div>
         </div>
 
@@ -1045,39 +937,30 @@
           <span id="bannerSubtitle"></span>
         </div>
 
-        <div class="board-meta">
-          <div class="legend-row">
-            <span class="legend-chip active">Obrigatorio</span>
-            <span class="legend-chip free">Livre</span>
-            <span class="legend-chip win">Fechado</span>
-            <span class="legend-chip draw">Travado</span>
-          </div>
-
-          <div class="macro-stats">
-            <div class="macro-stat x">
-              <div class="label">X controla</div>
-              <div class="num" id="macroX">0</div>
-            </div>
-            <div class="macro-stat o">
-              <div class="label">O controla</div>
-              <div class="num" id="macroO">0</div>
-            </div>
-            <div class="macro-stat draw">
-              <div class="label">Travados</div>
-              <div class="num" id="macroD">0</div>
-            </div>
-            <div class="macro-stat open">
-              <div class="label">Abertos</div>
-              <div class="num" id="macroOpen">0</div>
-            </div>
-          </div>
-        </div>
-
         <div class="board-shell" id="boardShell">
           <div class="board-grid" id="boardGrid" aria-label="Tabuleiro principal"></div>
         </div>
 
         <div class="footer" id="footerText"></div>
+      </section>
+
+      <section class="sr-panel" aria-hidden="true">
+        <section class="message" aria-live="polite">
+          <strong id="messageTitle"></strong>
+          <span id="messageBody"></span>
+        </section>
+        <div class="score-grid">
+          <div class="score x"><div class="num" id="scoreX">0</div></div>
+          <div class="score o"><div class="num" id="scoreO">0</div></div>
+          <div class="score d"><div class="num" id="scoreD">0</div></div>
+        </div>
+        <div class="macro-stats">
+          <div class="macro-stat x"><div class="num" id="macroX">0</div></div>
+          <div class="macro-stat o"><div class="num" id="macroO">0</div></div>
+          <div class="macro-stat draw"><div class="num" id="macroD">0</div></div>
+          <div class="macro-stat open"><div class="num" id="macroOpen">0</div></div>
+        </div>
+        <ol class="history" id="historyList"></ol>
       </section>
     </main>
   </div>
