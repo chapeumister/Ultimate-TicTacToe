@@ -265,6 +265,34 @@
       color: var(--warning);
     }
 
+    .ai-difficulty-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ai-difficulty-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .ai-difficulty-btn {
+      min-height: 42px;
+      background: #171717;
+      border-color: var(--line);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .ai-difficulty-btn.active {
+      background: rgba(0, 200, 150, 0.12);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
@@ -810,6 +838,7 @@
       }
 
       .mode-row,
+      .ai-difficulty-row,
       .online-form-top,
       .online-action-grid {
         grid-template-columns: 1fr;
@@ -986,6 +1015,16 @@
             <button class="btn mode-btn" data-mode="ai-o" id="modeAiO">Bot O</button>
           </div>
         </section>
+
+        <section class="ai-difficulty-group" aria-label="Dificuldade da IA">
+          <div class="mini-label">IA</div>
+          <div class="ai-difficulty-row">
+            <button class="btn ai-difficulty-btn" data-ai-difficulty="easy">Fácil</button>
+            <button class="btn ai-difficulty-btn" data-ai-difficulty="medium">Média</button>
+            <button class="btn ai-difficulty-btn active" data-ai-difficulty="hard">Difícil</button>
+            <button class="btn ai-difficulty-btn" data-ai-difficulty="insane">Imbatível</button>
+          </div>
+        </section>
       </aside>
 
       <section class="board-panel">
@@ -1081,6 +1120,7 @@
     const reconnectRoomBtn = document.getElementById('reconnectRoomBtn');
     const leaveRoomBtn = document.getElementById('leaveRoomBtn');
     const roomIdInput = document.getElementById('roomIdInput');
+    const aiDifficultyButtons = Array.from(document.querySelectorAll('.ai-difficulty-btn'));
     const onlineStatus = document.getElementById('onlineStatus');
     const heroRoomLabel = document.getElementById('heroRoomLabel');
     const roomCodeText = document.getElementById('roomCodeText');
@@ -1102,6 +1142,12 @@
       endgameDepth: 5,
       branchCutoff: 7,
     };
+    const AI_LEVELS = {
+      easy: { label: 'Fácil', maxDepth: 2, deadline: 10, poolSize: 4, randomness: 0.28, blockChance: 0.72, search: false },
+      medium: { label: 'Média', maxDepth: 4, deadline: 24, poolSize: 6, randomness: 0.1, blockChance: 0.92, search: true },
+      hard: { label: 'Difícil', maxDepth: 6, deadline: 60, poolSize: 8, randomness: 0.02, blockChance: 0.99, search: true },
+      insane: { label: 'Imbatível', maxDepth: 8, deadline: 140, poolSize: 10, randomness: 0, blockChance: 1, search: true },
+    };
     const aiCache = new Map();
     const state = {
       boards: [],
@@ -1116,6 +1162,7 @@
       scores: { X: 0, O: 0, D: 0 },
       lastMove: null,
       mode: 'pvp',
+      aiDifficulty: 'hard',
       aiTimer: null,
       aiBusy: false,
       online: {
@@ -1745,6 +1792,23 @@
       return scored.slice(0, Math.min(cutoff, scored.length));
     }
 
+    function getAiProfile() {
+      return AI_LEVELS[state.aiDifficulty] || AI_LEVELS.hard;
+    }
+
+    function updateAiDifficultyButtons() {
+      aiDifficultyButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.aiDifficulty === state.aiDifficulty);
+      });
+    }
+
+    function setAiDifficulty(level) {
+      if (!AI_LEVELS[level]) return;
+      state.aiDifficulty = level;
+      updateAiDifficultyButtons();
+      render();
+    }
+
     function negamax(snapshot, depth, alpha, beta, player, aiPlayer, deadline) {
       if (Date.now() > deadline) return evaluateSnapshot(snapshot, aiPlayer);
       const cacheKey = `${serializeSnapshot(snapshot, aiPlayer)}|${depth}|${player}`;
@@ -1780,16 +1844,21 @@
       return best;
     }
 
-    function determineSearchDepth(snapshot, moveCount) {
+    function determineSearchDepth(snapshot, moveCount, profile) {
       const openBoards = snapshot.boards.filter(board => board.status === 'ongoing').length;
       if (snapshot.gameOver) return 0;
-      if (openBoards <= 2 || moveCount <= 7) return AI_SEARCH.endgameDepth;
-      if (openBoards <= 4 || moveCount <= 12) return AI_SEARCH.baseDepth + 1;
-      if (moveCount <= 24) return AI_SEARCH.baseDepth;
-      return 2;
+      const dynamicDepth = openBoards <= 2 || moveCount <= 7
+        ? AI_SEARCH.endgameDepth
+        : openBoards <= 4 || moveCount <= 12
+          ? AI_SEARCH.baseDepth + 1
+          : moveCount <= 24
+            ? AI_SEARCH.baseDepth
+            : 2;
+      return Math.min(profile.maxDepth, dynamicDepth);
     }
 
     function chooseAiMove(player) {
+      const profile = getAiProfile();
       const snapshot = makeAiSnapshot();
       const moves = legalMovesForSnapshot(snapshot);
       if (!moves.length) return null;
@@ -1828,6 +1897,23 @@
 
       if (immediateWinning.length) return chooseBest(immediateWinning);
 
+      const opponentThreatMoves = [];
+      for (const move of moves) {
+        const child = simulateMove(snapshot, move, player);
+        const nextTarget = child.nextBoard !== null && child.boards[child.nextBoard]?.status === 'ongoing'
+          ? child.boards[child.nextBoard]
+          : null;
+        const opponentReplyWins = nextTarget ? countImmediateWins(nextTarget, opponent).length : 0;
+        opponentThreatMoves.push({ move, opponentReplyWins, moveScore: moveTacticalScore(snapshot, move, player) });
+      }
+
+      const blocks = opponentThreatMoves.filter(entry => entry.opponentReplyWins === 0);
+      const criticalBlocks = opponentThreatMoves.filter(entry => entry.opponentReplyWins > 0).sort((a, b) => a.opponentReplyWins - b.opponentReplyWins);
+      if (criticalBlocks.length && Math.random() < profile.blockChance) {
+        const pool = (blocks.length ? blocks : criticalBlocks).sort((a, b) => b.moveScore - a.moveScore);
+        return chooseBest(pool.slice(0, Math.min(profile.poolSize, pool.length)));
+      }
+
       const safeTactical = tacticalCandidates
         .filter(entry => entry.opponentReplyWins === 0)
         .sort((a, b) => b.moveScore - a.moveScore);
@@ -1835,29 +1921,51 @@
         return safeTactical[0].move;
       }
 
-      const depth = determineSearchDepth(snapshot, moves.length);
+      const depth = determineSearchDepth(snapshot, moves.length, profile);
       const ranked = tacticalCandidates
         .sort((a, b) => b.moveScore - a.moveScore)
-        .slice(0, Math.min(10, tacticalCandidates.length));
+        .slice(0, Math.min(profile.poolSize, tacticalCandidates.length));
 
       let bestMove = ranked[0].move;
       let bestScore = -Infinity;
-      const deadline = Date.now() + (state.mode === 'battle' ? 28 : 18);
+      const deadline = Date.now() + profile.deadline;
 
       const ordered = [
-        ...ranked.filter(entry => entry.move.boardIndex === bestMove.boardIndex && entry.move.cellIndex === bestMove.cellIndex),
-        ...ranked.filter(entry => entry.move.boardIndex !== bestMove.boardIndex || entry.move.cellIndex !== bestMove.cellIndex),
+        ...ranked.slice(0, 1),
+        ...ranked.slice(1),
       ];
-      for (const entry of ordered) {
+      const searchDepths = profile.search ? Array.from({ length: depth }, (_, i) => i + 1) : [0];
+
+      for (const searchDepth of searchDepths) {
+        let depthBestMove = bestMove;
+        let depthBestScore = -Infinity;
+        for (const entry of ordered) {
+          if (Date.now() > deadline) break;
+          const child = simulateMove(snapshot, entry.move, player);
+          const value = searchDepth === 0
+            ? entry.moveScore
+            : -negamax(child, searchDepth - 1, -Infinity, Infinity, child.currentPlayer, player, deadline);
+          const blended = value + entry.moveScore * 0.12;
+          if (blended > depthBestScore) {
+            depthBestScore = blended;
+            depthBestMove = entry.move;
+          }
+        }
+        bestMove = depthBestMove;
+        bestScore = depthBestScore;
         if (Date.now() > deadline) break;
-        const child = simulateMove(snapshot, entry.move, player);
-        const value = -negamax(child, depth - 1, -Infinity, Infinity, child.currentPlayer, player, deadline);
-        if (value > bestScore) {
-          bestScore = value;
-          bestMove = entry.move;
+      }
+
+      if (profile.randomness > 0 && ranked.length > 1) {
+        const spread = Math.max(1, Math.round(ranked.length * 0.35));
+        const pool = ranked.slice(0, spread);
+        const roll = Math.random();
+        if (roll < profile.randomness) {
+          return pool[Math.floor(Math.random() * pool.length)].move;
         }
       }
 
+      if (bestScore === -Infinity) return chooseBest(ranked);
       return bestMove;
     }
 
@@ -2364,12 +2472,12 @@
         ? 'Partida encerrada. Reinicie ou volte um lance para continuar ajustando.'
         : state.mode === 'online'
           ? onlineLabel || 'Entre em uma sala para compartilhar a partida por codigo ou link.'
-        : state.mode === 'battle'
-          ? 'As duas IAs jogam sozinhas com busca profunda, bloqueios imediatos e priorização estratégica de tabuleiro.'
+          : state.mode === 'battle'
+          ? `As duas IAs jogam sozinhas em ${getAiProfile().label.toLowerCase()}, com bloqueios imediatos e busca adaptativa.`
           : state.mode === 'ai-x'
-            ? 'A IA controla o X enquanto você controla o O.'
+            ? `A IA controla o X em ${getAiProfile().label.toLowerCase()}.`
             : state.mode === 'ai-o'
-              ? 'Você controla o X enquanto a IA controla o O.'
+              ? `Você controla o X enquanto a IA joga em ${getAiProfile().label.toLowerCase()}.`
           : freeChoice
             ? 'O próximo jogador pode escolher qualquer mini-tabuleiro ainda disponível. O painel ganha destaque verde para reforçar a liberdade.'
             : state.lastMove
@@ -2477,6 +2585,9 @@
     modeButtons.forEach((btn) => {
       btn.addEventListener('click', () => setMode(btn.dataset.mode));
     });
+    aiDifficultyButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setAiDifficulty(btn.dataset.aiDifficulty));
+    });
     themeBtn.addEventListener('click', () => {
       const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
       setTheme(next);
@@ -2531,6 +2642,7 @@
 
     loadTheme();
     loadClientId();
+    updateAiDifficultyButtons();
     resetMatch();
     roomIdInput.value = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || localStorage.getItem(ROOM_ID_KEY) || '');
     const bootRoomId = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || localStorage.getItem(ROOM_ID_KEY) || '');
