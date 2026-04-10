@@ -900,8 +900,9 @@
     }
 
     @media (max-width: 560px) {
-      .shell { width: 100%; padding: 6px; }
-      .hero { padding: 12px; margin-bottom: 10px; border-radius: 18px; }
+      html { font-size: 18px; }
+      .shell { width: 100%; padding: 4px; }
+      .hero { padding: 10px; margin-bottom: 8px; border-radius: 16px; }
       .hero-top { gap: 10px; }
       h1 { font-size: clamp(1.7rem, 8vw, 2.25rem); }
       .subtitle { font-size: .92rem; }
@@ -915,31 +916,35 @@
         width: 100%;
       }
       .mode-row { grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
-      .board-panel, .side-panel { padding: 10px; border-radius: 18px; }
-      .status-strip { gap: 7px; }
-      .card { min-height: 64px; padding: 10px 11px; }
-      .board-shell { padding: 4px; border-radius: 16px; }
+      .board-panel, .side-panel { padding: 8px; border-radius: 16px; }
+      .status-strip { gap: 6px; }
+      .card { min-height: 60px; padding: 9px 10px; }
+      .board-shell {
+        padding: 2px;
+        border-radius: 14px;
+        margin-inline: -2px;
+      }
       .board-shell::before,
-      .board-shell::after { inset: 8px; }
-      .board-grid { gap: 4px; }
-      .mini-board { padding: 3px; border-radius: 12px; }
+      .board-shell::after { inset: 6px; }
+      .board-grid { gap: 2px; }
+      .mini-board { padding: 2px; border-radius: 10px; }
       .mini-header { display: none; }
       .mini-tag { padding: 4px 7px; font-size: 10px; }
-      .mini-cells { gap: 2px; }
+      .mini-cells { gap: 1px; }
       .cell {
-        border-radius: 8px;
-        font-size: clamp(2.25rem, 11vw, 3.85rem);
+        border-radius: 6px;
+        font-size: clamp(2.85rem, 13vw, 4.65rem);
         font-weight: 950;
-        letter-spacing: -0.1em;
-        -webkit-text-stroke: 1.35px color-mix(in oklab, currentColor 76%, var(--text));
-        text-shadow: 0 1px 0 rgba(255,255,255,.34), 0 5px 12px rgba(0,0,0,.14);
+        letter-spacing: -0.12em;
+        -webkit-text-stroke: 1.5px color-mix(in oklab, currentColor 78%, var(--text));
+        text-shadow: 0 1px 0 rgba(255,255,255,.36), 0 6px 14px rgba(0,0,0,.16);
       }
       .legend-row { gap: 6px; }
-      .legend-chip { padding: 6px 9px; font-size: 11px; }
-      .board-meta { gap: 10px; }
+      .legend-chip { padding: 6px 8px; font-size: 10px; }
+      .board-meta { gap: 8px; }
       .macro-stats, .score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .message, .info-box { padding: 11px; }
-      .history { max-height: 200px; }
+      .message, .info-box { padding: 10px; }
+      .history { max-height: 180px; }
     }
   </style>
 </head>
