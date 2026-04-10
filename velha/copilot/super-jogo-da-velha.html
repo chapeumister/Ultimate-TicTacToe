@@ -286,6 +286,8 @@
       padding: 16px;
       display: grid;
       gap: 14px;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .stack-heading,
@@ -412,18 +414,18 @@
 
     .board-shell {
       position: relative;
-      padding: 10px;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 16px;
       border: 1px solid var(--line);
-      background: #111111;
+      background: radial-gradient(circle at top, rgba(0,200,150,.04), transparent 40%), #101010;
       overflow: hidden;
     }
 
     .board-shell::before {
       content: "";
       position: absolute;
-      inset: 10px;
-      border-radius: 8px;
+      inset: 12px;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.03);
       pointer-events: none;
     }
@@ -431,20 +433,46 @@
     .board-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--grid-gap);
+      gap: 6px;
       aspect-ratio: 1 / 1;
       position: relative;
       z-index: 1;
+      min-height: 0;
+      max-height: 100%;
     }
 
     .mini-board {
       position: relative;
-      padding: 6px;
-      border-radius: 6px;
+      padding: 0;
+      border-radius: 8px;
       border: 1px solid var(--line);
       background: #171717;
       transition: transform .14s ease, border-color .14s ease, opacity .14s ease;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
+    }
+
+    .mini-board > * {
+      flex-shrink: 0;
+    }
+
+    .mini-board .mini-cells {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 7px;
+    }
+
+    .mini-board .mini-cells .cell-row {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .mini-board .mini-cells .cell-row .cell {
+      flex: 1;
     }
 
     .mini-board.required {
@@ -491,18 +519,25 @@
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      margin-bottom: 7px;
+      padding: 7px 8px 5px;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.01);
     }
 
     .mini-title {
-      font-size: 10px;
+      font-size: 9px;
+      letter-spacing: .16em;
+      color: var(--text-muted);
     }
 
     .mini-tag {
-      min-height: 24px;
-      padding: 0 8px;
-      font-size: 9px;
+      min-height: 18px;
+      padding: 0 6px;
+      font-size: 8px;
       letter-spacing: .1em;
+      opacity: .72;
+      display: none;
     }
 
     .mini-cells {
@@ -511,6 +546,8 @@
       gap: 4px;
       position: relative;
       z-index: 1;
+      flex: 1;
+      min-height: 0;
     }
 
     .cell {
@@ -523,11 +560,12 @@
       border: 1px solid #2d2d2d;
       background: #0f0f0f;
       color: var(--text-primary);
-      font-size: clamp(1.35rem, 3.3vw, 2.2rem);
+      font-size: clamp(1.1rem, 2.8vw, 1.85rem);
       font-weight: 900;
       line-height: 1;
       cursor: pointer;
       transition: transform .12s ease, border-color .12s ease, background .12s ease, opacity .12s ease;
+      overflow: hidden;
     }
 
     .cell:hover:not(:disabled) {
@@ -564,15 +602,19 @@
 
     .mini-board-status {
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       display: grid;
       place-items: center;
       pointer-events: none;
       opacity: 0;
-      font-size: clamp(1.8rem, 6vw, 3.1rem);
+      font-size: clamp(1.4rem, 5vw, 2.4rem);
       font-weight: 900;
       letter-spacing: -0.08em;
       color: rgba(245,245,245,0.12);
+      z-index: 10;
     }
 
     .mini-board.won-x .mini-board-status,
@@ -791,14 +833,23 @@
         gap: 6px;
       }
 
+      .mini-header {
+        display: none;
+      }
+
       .mini-board {
-        padding: 5px;
+        padding: 2px;
         border-radius: 5px;
+      }
+
+      .mini-board .mini-cells {
+        padding: 4px;
       }
 
       .cell {
         border-radius: 3px;
-        font-size: clamp(1.15rem, 8vw, 1.8rem);
+        font-size: clamp(0.9rem, 6vw, 1.3rem);
+        overflow: hidden;
       }
 
       .mini-board-status {
@@ -2336,36 +2387,43 @@
           state.gameOver && state.globalLine.includes(boardIndex) ? 'macro-win' : '',
         ].filter(Boolean).join(' ');
 
-        const statusLabel = isWon ? board.status : isDraw ? 'Empate' : boardIndex + 1;
-        const tag = isWon ? `Vencido por ${board.status}` : isDraw ? 'Empatado' : required ? 'Obrigatório' : free ? 'Livre' : 'Aberto';
+        const statusLabel = isWon ? board.status : isDraw ? 'Empate' : '';
+        const tag = isWon ? `Vencido por ${board.status}` : isDraw ? 'Empatado' : required ? 'Ativo' : free ? 'Livre' : '';
 
-        const cells = board.cells.map((mark, cellIndex) => {
-          const playable = isCellPlayable(boardIndex, cellIndex);
-          const disabled = !playable;
-          const cellClasses = [
-            'cell',
-            mark ? mark.toLowerCase() : '',
-            board.winningLine.includes(cellIndex) ? 'win-cell' : '',
-            playable ? 'playable' : '',
-            state.lastMove && state.lastMove.boardIndex === boardIndex && state.lastMove.cellIndex === cellIndex ? 'last-move' : '',
-          ].filter(Boolean).join(' ');
-          return `
-            <button
-              class="${cellClasses}"
-              data-board="${boardIndex}"
-              data-cell="${cellIndex}"
-              ${disabled ? 'disabled' : ''}
-              aria-label="Mini-tabuleiro ${boardIndex + 1}, casa ${cellIndex + 1}${mark ? `, ocupada por ${mark}` : ''}"
-            >${mark || ''}</button>`;
-        }).join('');
+        const cellsHtml = [];
+        for (let row = 0; row < 3; row++) {
+          const rowCells = [];
+          for (let col = 0; col < 3; col++) {
+            const cellIndex = row * 3 + col;
+            const mark = board.cells[cellIndex];
+            const playable = isCellPlayable(boardIndex, cellIndex);
+            const disabled = !playable;
+            const cellClasses = [
+              'cell',
+              mark ? mark.toLowerCase() : '',
+              board.winningLine.includes(cellIndex) ? 'win-cell' : '',
+              playable ? 'playable' : '',
+              state.lastMove && state.lastMove.boardIndex === boardIndex && state.lastMove.cellIndex === cellIndex ? 'last-move' : '',
+            ].filter(Boolean).join(' ');
+            rowCells.push(`
+              <button
+                class="${cellClasses}"
+                data-board="${boardIndex}"
+                data-cell="${cellIndex}"
+                ${disabled ? 'disabled' : ''}
+                aria-label="Mini-tabuleiro ${boardIndex + 1}, casa ${cellIndex + 1}${mark ? `, ocupada por ${mark}` : ''}"
+              >${mark || ''}</button>`);
+          }
+          cellsHtml.push(`<div class="cell-row">${rowCells.join('')}</div>`);
+        }
 
         return `
           <div class="${classes}" data-board-index="${boardIndex}">
             <div class="mini-header">
-              <div class="mini-title">Tabuleiro ${boardIndex + 1}</div>
+              <div class="mini-title">#${boardIndex + 1}</div>
               <div class="mini-tag">${tag}</div>
             </div>
-            <div class="mini-cells">${cells}</div>
+            <div class="mini-cells">${cellsHtml.join('')}</div>
             <div class="mini-board-status">${statusLabel}</div>
           </div>
         `;
