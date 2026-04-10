@@ -101,8 +101,7 @@
     }
 
     .badge,
-    .legend-chip,
-    .mini-tag {
+    .legend-chip {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -141,8 +140,7 @@
 
     .label,
     .mini-label,
-    .card .label,
-    .mini-title {
+    .card .label {
       font-size: 11px;
       font-weight: 800;
       letter-spacing: .12em;
@@ -574,32 +572,6 @@
       box-shadow: inset 0 0 0 1px rgba(0,200,150,.18), 0 0 0 1px rgba(0,200,150,.18);
     }
 
-    .mini-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 8px 5px;
-      flex-shrink: 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      background: rgba(255,255,255,0.01);
-    }
-
-    .mini-title {
-      font-size: 9px;
-      letter-spacing: .16em;
-      color: var(--text-muted);
-    }
-
-    .mini-tag {
-      min-height: 18px;
-      padding: 0 6px;
-      font-size: 8px;
-      letter-spacing: .1em;
-      opacity: .72;
-      display: none;
-    }
-
     .mini-cells {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -708,27 +680,6 @@
     .mini-board.drawn .mini-cells {
       opacity: .22;
       filter: saturate(.85);
-    }
-
-    .mini-board.won-x .mini-title,
-    .mini-board.won-o .mini-title,
-    .mini-board.drawn .mini-title {
-      color: rgba(245,245,245,0.7);
-    }
-
-    .mini-board.won-x .mini-tag,
-    .mini-board.won-o .mini-tag,
-    .mini-board.drawn .mini-tag,
-    .mini-board.required .mini-tag,
-    .mini-board.available .mini-tag,
-    .mini-board.free-choice .mini-tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 18px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.03);
-      color: var(--text-secondary);
-      opacity: 1;
     }
 
     .message,
@@ -909,6 +860,7 @@
 
       .mode-row,
       .ai-difficulty-row,
+      .time-row,
       .online-form-top,
       .online-action-grid {
         grid-template-columns: 1fr;
@@ -981,6 +933,15 @@
 
       .mini-board-status {
         font-size: clamp(1.7rem, 11vw, 2.6rem);
+      }
+
+      .time-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .time-btn {
+        min-height: 38px;
+        font-size: 9px;
       }
     }
   </style>
@@ -2736,8 +2697,6 @@
         ].filter(Boolean).join(' ');
 
         const statusLabel = isWon ? board.status : isDraw ? 'EMPATE' : '';
-        const tag = isWon ? `FECHADO POR ${board.status}` : isDraw ? 'FECHADO POR EMPATE' : required ? 'OBRIGATÓRIO' : free ? 'DISPONÍVEL' : '';
-
         const cellsHtml = [];
         for (let row = 0; row < 3; row++) {
           const rowCells = [];
@@ -2767,10 +2726,6 @@
 
         return `
           <div class="${classes}" data-board-index="${boardIndex}">
-            <div class="mini-header">
-              <div class="mini-title">#${boardIndex + 1}</div>
-              <div class="mini-tag">${tag}</div>
-            </div>
             <div class="mini-cells">${cellsHtml.join('')}</div>
             <div class="mini-board-status">${statusLabel}</div>
           </div>
