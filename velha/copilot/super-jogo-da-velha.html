@@ -84,16 +84,29 @@
 
     .hero {
       border-radius: var(--radius-xl);
-      padding: 24px;
+      padding: 28px;
       margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -12% -48% 42%;
+      height: 240px;
+      background: radial-gradient(circle, rgba(29, 78, 216, 0.12), transparent 64%);
+      pointer-events: none;
     }
 
     .hero-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 18px;
+      gap: 24px;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
     }
 
     .brand {
@@ -143,9 +156,40 @@
     .subtitle {
       margin: 0;
       color: var(--muted);
-      font-size: 0.96rem;
+      font-size: 1rem;
       max-width: 58ch;
       line-height: 1.6;
+    }
+
+    .hero-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 620px;
+    }
+
+    .hero-metric {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.52);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-metric .kicker {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .hero-metric strong {
+      display: block;
+      font-size: 1rem;
+      letter-spacing: -.03em;
     }
 
     .controls {
@@ -165,6 +209,37 @@
       background: rgba(255,255,255,.5);
       backdrop-filter: blur(10px);
       grid-column: 1 / -1;
+    }
+
+    .quick-room {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.56);
+      grid-column: 1 / -1;
+    }
+
+    .quick-room-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .quick-room-copy .mini-label {
+      margin: 0;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .quick-room-copy strong {
+      font-size: .95rem;
+      letter-spacing: -.02em;
     }
 
     body[data-theme="dark"] .mode-group { background: rgba(255,255,255,.03); }
@@ -302,6 +377,31 @@
       display: grid;
       gap: 12px;
       margin-bottom: 14px;
+    }
+
+    .board-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .board-panel-header h2,
+    .board-panel-header p {
+      margin: 0;
+    }
+
+    .board-panel-header h2 {
+      font-size: 1.2rem;
+      letter-spacing: -.04em;
+    }
+
+    .board-panel-header p {
+      color: var(--muted);
+      max-width: 48ch;
+      line-height: 1.55;
+      font-size: .94rem;
     }
 
     .legend-row {
@@ -670,6 +770,33 @@
       top: 20px;
     }
 
+    .stack-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+
+    .stack-heading .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .stack-heading .eyebrow::before {
+      content: "";
+      width: 22px;
+      height: 1px;
+      background: currentColor;
+      opacity: .7;
+    }
+
     .side-group {
       display: grid;
       gap: 12px;
@@ -711,6 +838,113 @@
       margin: 0;
       color: var(--muted);
       line-height: 1.6;
+    }
+
+    .online-box {
+      gap: 14px;
+      background:
+        linear-gradient(180deg, rgba(29,78,216,.08), rgba(255,255,255,.94) 42%),
+        var(--panel-strong);
+    }
+
+    body[data-theme="dark"] .online-box {
+      background:
+        linear-gradient(180deg, rgba(29,78,216,.16), rgba(17,28,43,.96) 46%),
+        var(--panel-strong);
+    }
+
+    .online-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .online-form-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .online-action-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .online-action-grid .btn,
+    .online-form-top .btn {
+      width: 100%;
+    }
+
+    .online-presence {
+      display: grid;
+      gap: 8px;
+    }
+
+    .presence-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .presence-card {
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.62);
+      display: grid;
+      gap: 4px;
+    }
+
+    body[data-theme="dark"] .presence-card {
+      background: rgba(255,255,255,.04);
+    }
+
+    .presence-card .label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .presence-card strong {
+      font-size: .95rem;
+      letter-spacing: -.02em;
+    }
+
+    .online-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .online-meta {
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.52);
+      min-height: 72px;
+    }
+
+    body[data-theme="dark"] .online-meta {
+      background: rgba(255,255,255,.04);
+    }
+
+    .online-meta .label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .online-meta strong {
+      display: block;
+      font-size: 1rem;
+      letter-spacing: -.03em;
+      line-height: 1.25;
     }
     .info-list {
       margin: 12px 0 0;
@@ -884,6 +1118,7 @@
       .info-box.online-box { grid-column: span 2; }
       .controls { justify-content: stretch; }
       .mode-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .hero-summary { max-width: none; }
     }
 
     @media (max-width: 820px) {
@@ -901,8 +1136,13 @@
       .status-strip .card:last-child { grid-column: 1 / -1; }
       .score-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .macro-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-summary { grid-template-columns: 1fr; }
+      .board-panel-header { flex-direction: column; align-items: flex-start; }
       .mode-row { min-width: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .online-row { grid-template-columns: 1fr; }
+      .online-form-top,
+      .presence-grid,
+      .online-meta-grid { grid-template-columns: 1fr; }
       .board-shell { padding: 10px; }
       .board-grid { gap: 8px; }
       .mini-board { padding: 8px; border-radius: 16px; }
@@ -936,6 +1176,11 @@
         width: 100%;
         grid-column: 1 / -1;
       }
+      .quick-room {
+        grid-column: 1 / -1;
+        align-items: flex-start;
+        flex-direction: column;
+      }
       .mode-row { grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
       .board-panel, .side-panel { padding: 8px; border-radius: 16px; }
       .status-strip { gap: 6px; }
@@ -966,6 +1211,7 @@
       .message, .info-box { padding: 10px; }
       .history { max-height: 180px; }
       .online-row { gap: 6px; }
+      .online-action-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -981,6 +1227,20 @@
           </div>
           <h1>Ultimate Tic-Tac-Toe</h1>
           <p class="subtitle">Versão direta e legível do Super Jogo da Velha, com leitura rápida no desktop e controles confortáveis no mobile.</p>
+          <div class="hero-summary">
+            <div class="hero-metric">
+              <span class="kicker">Fluxo</span>
+              <strong>9 tabuleiros, 1 partida com regra de envio real.</strong>
+            </div>
+            <div class="hero-metric">
+              <span class="kicker">Online</span>
+              <strong>Salas por código, assentos X/O e espectador.</strong>
+            </div>
+            <div class="hero-metric">
+              <span class="kicker">Ritmo</span>
+              <strong>Leitura limpa no desktop e toque confortável no celular.</strong>
+            </div>
+          </div>
         </div>
         <div class="controls">
           <button class="btn primary" id="newGameBtn">Nova partida</button>
@@ -996,12 +1256,25 @@
               <button class="btn mode-btn" data-mode="ai-o" id="modeAiO">O IA</button>
             </div>
           </div>
+          <div class="quick-room">
+            <div class="quick-room-copy">
+              <span class="mini-label">Sala ativa</span>
+              <strong id="heroRoomLabel">PvP local</strong>
+            </div>
+            <button class="btn" id="copyRoomLinkBtn">Copiar link</button>
+          </div>
         </div>
       </div>
     </header>
 
     <main class="layout">
       <section class="board-panel">
+        <div class="board-panel-header">
+          <div>
+            <h2>Tabuleiro principal</h2>
+            <p>O tabuleiro grande concentra o fluxo da partida. Quando a jogada fica livre, o destaque muda e a leitura do próximo turno fica mais direta.</p>
+          </div>
+        </div>
         <div class="status-strip">
           <div class="card">
             <div class="label">Turno atual</div>
@@ -1058,7 +1331,10 @@
 
       <aside class="side-panel">
         <section class="side-group">
-          <h2 class="side-title">Placar</h2>
+          <div class="stack-heading">
+            <span class="eyebrow">Partida</span>
+            <h2 class="side-title">Placar</h2>
+          </div>
           <div class="score-grid">
             <div class="score x">
               <div class="label">Vitórias X</div>
@@ -1081,14 +1357,53 @@
         </section>
 
         <section class="info-box online-box">
-          <h2 class="side-title">Multiplayer online</h2>
-          <p class="mini-note">Ao entrar no modo Online, a partida conecta na sala pública compartilhada e usa o mesmo link para todo mundo.</p>
-          <div class="online-grid">
-            <div class="online-row">
-              <button class="btn online-btn" id="copyRoomLinkBtn">Copiar link público</button>
+          <div class="stack-heading">
+            <span class="eyebrow">Lobby</span>
+            <h2 class="side-title">Multiplayer online</h2>
+          </div>
+          <p class="mini-note">Crie uma sala privada, entre por código ou volte para a sala pública. O sistema tenta te manter no mesmo assento e libera a vaga ao sair.</p>
+          <div class="online-form">
+            <div class="online-form-top">
+              <input class="online-input" id="roomIdInput" type="text" inputmode="text" maxlength="16" placeholder="Código da sala" autocomplete="off" />
+              <button class="btn online-btn" id="joinRoomBtn">Entrar</button>
+            </div>
+            <div class="online-action-grid">
+              <button class="btn online-btn" id="createRoomBtn">Criar sala</button>
+              <button class="btn online-btn" id="publicRoomBtn">Sala pública</button>
+              <button class="btn online-btn" id="reconnectRoomBtn">Reconectar</button>
               <button class="btn online-btn" id="leaveRoomBtn">Sair do online</button>
             </div>
             <div class="online-status" id="onlineStatus">Offline</div>
+          </div>
+          <div class="online-presence">
+            <div class="presence-grid">
+              <div class="presence-card">
+                <div class="label">Assento X</div>
+                <strong id="seatXStatus">Livre</strong>
+              </div>
+              <div class="presence-card">
+                <div class="label">Assento O</div>
+                <strong id="seatOStatus">Livre</strong>
+              </div>
+              <div class="presence-card">
+                <div class="label">Seu papel</div>
+                <strong id="seatRoleStatus">Offline</strong>
+              </div>
+            </div>
+            <div class="online-meta-grid">
+              <div class="online-meta">
+                <span class="label">Sala</span>
+                <strong id="roomCodeText">-</strong>
+              </div>
+              <div class="online-meta">
+                <span class="label">Sincronização</span>
+                <strong id="roomSyncText">-</strong>
+              </div>
+              <div class="online-meta">
+                <span class="label">Estado</span>
+                <strong id="roomStateText">Aguardando</strong>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1148,8 +1463,20 @@
     const boardShell = document.getElementById('boardShell');
     const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
     const copyRoomLinkBtn = document.getElementById('copyRoomLinkBtn');
+    const joinRoomBtn = document.getElementById('joinRoomBtn');
+    const createRoomBtn = document.getElementById('createRoomBtn');
+    const publicRoomBtn = document.getElementById('publicRoomBtn');
+    const reconnectRoomBtn = document.getElementById('reconnectRoomBtn');
     const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+    const roomIdInput = document.getElementById('roomIdInput');
     const onlineStatus = document.getElementById('onlineStatus');
+    const heroRoomLabel = document.getElementById('heroRoomLabel');
+    const roomCodeText = document.getElementById('roomCodeText');
+    const roomSyncText = document.getElementById('roomSyncText');
+    const roomStateText = document.getElementById('roomStateText');
+    const seatXStatus = document.getElementById('seatXStatus');
+    const seatOStatus = document.getElementById('seatOStatus');
+    const seatRoleStatus = document.getElementById('seatRoleStatus');
 
     const THEME_KEY = 'sjv-theme';
     const SUPABASE_URL = 'https://wwegguijtwanuuxcbwly.supabase.co';
@@ -1184,6 +1511,9 @@
         connected: false,
         role: null,
         roomId: '',
+        hostClientId: null,
+        xClientId: null,
+        oClientId: null,
         version: 0,
         clientId: '',
         supabaseUrl: SUPABASE_URL,
@@ -1274,16 +1604,37 @@
       onlineStatus.className = `online-status ${tone}`.trim();
     }
 
+    function updateOnlinePresence() {
+      seatXStatus.textContent = state.online.xClientId ? (state.online.xClientId === state.online.clientId ? 'Você' : 'Ocupado') : 'Livre';
+      seatOStatus.textContent = state.online.oClientId ? (state.online.oClientId === state.online.clientId ? 'Você' : 'Ocupado') : 'Livre';
+      seatRoleStatus.textContent = roleLabel(state.online.role);
+      roomCodeText.textContent = state.online.roomId || '-';
+      roomSyncText.textContent = state.online.lastSyncAt
+        ? new Date(state.online.lastSyncAt).toLocaleTimeString()
+        : 'Pendente';
+      roomStateText.textContent = !state.online.active
+        ? 'Local'
+        : state.online.connected
+          ? (state.online.role === 'spectator' ? 'Assistindo' : 'Ao vivo')
+          : 'Conectando';
+      heroRoomLabel.textContent = state.online.active
+        ? `${state.online.roomId || 'sem sala'} · ${roleLabel(state.online.role)}`
+        : 'PvP local';
+      roomIdInput.value = state.online.roomId || roomIdInput.value || '';
+    }
+
     function updateOnlineControls() {
       if (!state.online.active) {
         setOnlineStatus('Online público desligado', '');
+        updateOnlinePresence();
         return;
       }
-      const roleText = state.online.role ? `Você é ${state.online.role}` : 'Sem papel definido';
-      const roomText = state.online.roomId ? `Sala pública ${state.online.roomId}` : 'Sala pública nova';
+      const roleText = roleLabel(state.online.role);
+      const roomText = state.online.roomId ? `Sala ${state.online.roomId}` : 'Sala pendente';
       const syncText = state.online.lastSyncAt ? `Atualizado ${new Date(state.online.lastSyncAt).toLocaleTimeString()}` : 'Sincronizando';
-      const statusTone = state.online.connected ? 'ok' : 'warn';
+      const statusTone = state.online.connected ? (state.online.role === 'spectator' ? 'warn' : 'ok') : 'warn';
       setOnlineStatus(`${roomText} · ${roleText} · ${syncText}`, statusTone);
+      updateOnlinePresence();
     }
 
     function stopOnlinePolling() {
@@ -1306,15 +1657,40 @@
       return url.toString();
     }
 
+    function syncRoomUrl(roomId) {
+      const url = new URL(window.location.href);
+      if (roomId) url.searchParams.set('room', roomId);
+      else url.searchParams.delete('room');
+      window.history.replaceState({}, '', url);
+    }
+
+    function normalizeRoomId(value) {
+      return (value || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_-]/g, '')
+        .slice(0, 16);
+    }
+
+    function generateRoomId() {
+      return `ROOM-${makeId('').slice(0, 6).toUpperCase()}`;
+    }
+
+    function roleLabel(role) {
+      if (role === 'X' || role === 'O') return `Jogador ${role}`;
+      if (role === 'spectator') return 'Espectador';
+      return 'Offline';
+    }
+
     function getPreferredRoomId() {
-      const fromUrl = new URL(window.location.href).searchParams.get('room') || '';
+      const fromUrl = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || '');
       const fromStorage = localStorage.getItem(ROOM_ID_KEY) || '';
-      return (fromUrl || fromStorage || PUBLIC_ROOM_ID).trim().toUpperCase();
+      return normalizeRoomId(fromUrl || fromStorage || PUBLIC_ROOM_ID);
     }
 
     async function ensureOnlineRoom() {
       if (state.online.connected || state.online.pendingCommit) return;
-      const roomId = PUBLIC_ROOM_ID;
+      const roomId = getPreferredRoomId();
       state.online.pendingCommit = true;
       try {
         await connectOnlineState(roomId, false);
@@ -1324,9 +1700,9 @@
     }
 
     async function copyCurrentRoomLink() {
-      const roomId = PUBLIC_ROOM_ID;
+      const roomId = state.online.roomId || getPreferredRoomId();
       if (!roomId) {
-        setOnlineStatus('Sala pública indisponível.', 'warn');
+        setOnlineStatus('Nenhuma sala conectada.', 'warn');
         return;
       }
       const link = roomLink(roomId);
@@ -1341,7 +1717,7 @@
           document.execCommand('copy');
           temp.remove();
         }
-        setOnlineStatus('Link copiado para compartilhar no celular do outro jogador.', 'ok');
+        setOnlineStatus('Link da sala copiado para compartilhar.', 'ok');
       } catch (error) {
         setOnlineStatus(`Falha ao copiar o link: ${error.message}`, 'bad');
       }
@@ -1901,6 +2277,9 @@
         state.online.connected = false;
         state.online.role = null;
         state.online.roomId = '';
+        state.online.hostClientId = null;
+        state.online.xClientId = null;
+        state.online.oClientId = null;
         state.online.version = 0;
         state.online.lastError = '';
         state.online.lastSyncAt = null;
@@ -1909,6 +2288,44 @@
       }
       updateOnlineControls();
       render();
+    }
+
+    function inferRoleFromRow(roomRow) {
+      if (!roomRow) return null;
+      if (roomRow.x_client_id === state.online.clientId) return 'X';
+      if (roomRow.o_client_id === state.online.clientId) return 'O';
+      if (!roomRow.x_client_id) return 'X';
+      if (!roomRow.o_client_id) return 'O';
+      return 'spectator';
+    }
+
+    async function claimSeat(roomId, roomRow, preferredRole = null) {
+      let targetRole = null;
+      if (preferredRole === 'X' && !roomRow.x_client_id) targetRole = 'X';
+      else if (preferredRole === 'O' && !roomRow.o_client_id) targetRole = 'O';
+      else if (!roomRow.x_client_id) targetRole = 'X';
+      else if (!roomRow.o_client_id) targetRole = 'O';
+      if (!targetRole) return roomRow;
+
+      const patch = targetRole === 'X'
+        ? { x_client_id: state.online.clientId, host_client_id: roomRow.host_client_id || state.online.clientId }
+        : { o_client_id: state.online.clientId, host_client_id: roomRow.host_client_id || state.online.clientId };
+
+      await updateRoom(roomId, patch, roomRow.version);
+      return fetchRoom(roomId);
+    }
+
+    async function releaseOnlineSeat() {
+      if (!state.online.roomId || !state.online.connected) return;
+      try {
+        const patch = {};
+        if (state.online.role === 'X') patch.x_client_id = null;
+        if (state.online.role === 'O') patch.o_client_id = null;
+        if (!Object.keys(patch).length) return;
+        await updateRoom(state.online.roomId, patch);
+      } catch (error) {
+        state.online.lastError = error.message;
+      }
     }
 
     async function fetchRoom(roomId) {
@@ -1967,17 +2384,12 @@
       state.online.roomId = roomRow.id;
       state.online.connected = true;
       state.online.lastSyncAt = Date.now();
-      if (roomRow.x_client_id === state.online.clientId) {
-        state.online.role = 'X';
-      } else if (roomRow.o_client_id === state.online.clientId) {
-        state.online.role = 'O';
-      } else if (!roomRow.x_client_id) {
-        state.online.role = 'X';
-      } else if (!roomRow.o_client_id) {
-        state.online.role = 'O';
-      } else {
-        state.online.role = 'spectator';
-      }
+      state.online.hostClientId = roomRow.host_client_id || null;
+      state.online.xClientId = roomRow.x_client_id || null;
+      state.online.oClientId = roomRow.o_client_id || null;
+      state.online.role = inferRoleFromRow(roomRow);
+      syncRoomUrl(roomRow.id);
+      localStorage.setItem(ROOM_ID_KEY, roomRow.id);
       applySyncPayload(snapshotFromRoomState(remoteState), { keepStack: false });
       updateOnlineControls();
     }
@@ -1993,7 +2405,13 @@
         const remoteVersion = row.version || 0;
         if (remoteVersion !== state.online.version) {
           applyRoomRow(row);
+        } else if (state.online.role === 'spectator' && (!row.x_client_id || !row.o_client_id)) {
+          const claimed = await claimSeat(state.online.roomId, row);
+          if (claimed) applyRoomRow(claimed);
         } else {
+          state.online.hostClientId = row.host_client_id || null;
+          state.online.xClientId = row.x_client_id || null;
+          state.online.oClientId = row.o_client_id || null;
           updateOnlineControls();
         }
       } catch (error) {
@@ -2039,15 +2457,17 @@
       }
       state.online.supabaseUrl = url;
       state.online.supabaseKey = key;
-      const cleanRoomId = (roomId || makeId('R')).trim().toUpperCase();
+      const cleanRoomId = normalizeRoomId(roomId || generateRoomId());
       if (!cleanRoomId) {
-        setOnlineStatus('Sala pública inválida.', 'warn');
+        setOnlineStatus('Código de sala inválido.', 'warn');
         return;
       }
 
       setOnlineMode(true);
       state.online.roomId = cleanRoomId;
+      roomIdInput.value = cleanRoomId;
       localStorage.setItem(ROOM_ID_KEY, cleanRoomId);
+      syncRoomUrl(cleanRoomId);
       clearOnlineTimers();
 
       try {
@@ -2058,7 +2478,7 @@
           state.online.role = 'X';
           state.online.version = row.version || 1;
           applyRoomRow(row);
-          setOnlineStatus(`Sala criada: ${cleanRoomId} · você é X`, 'ok');
+          setOnlineStatus(`Sala criada: ${cleanRoomId} · você entrou como X`, 'ok');
         } else {
           let row = await fetchRoom(cleanRoomId);
           if (!row) {
@@ -2070,25 +2490,15 @@
             }
           }
 
-          if (row.x_client_id === state.online.clientId) {
-            state.online.role = 'X';
-          } else if (row.o_client_id === state.online.clientId) {
-            state.online.role = 'O';
-          } else if (!row.x_client_id) {
-            await updateRoom(cleanRoomId, { x_client_id: state.online.clientId }, row.version);
-            state.online.role = 'X';
-          } else if (!row.o_client_id) {
-            await updateRoom(cleanRoomId, { o_client_id: state.online.clientId }, row.version);
-            state.online.role = 'O';
-          } else {
-            state.online.role = 'spectator';
+          if (row.x_client_id !== state.online.clientId && row.o_client_id !== state.online.clientId) {
+            row = await claimSeat(cleanRoomId, row);
           }
 
           const latest = await fetchRoom(cleanRoomId);
           if (latest) {
             applyRoomRow(latest);
           }
-          setOnlineStatus(`Conectado à sala ${cleanRoomId} · você é ${state.online.role}`, state.online.role === 'spectator' ? 'warn' : 'ok');
+          setOnlineStatus(`Conectado à sala ${cleanRoomId} · ${roleLabel(state.online.role)}`, state.online.role === 'spectator' ? 'warn' : 'ok');
         }
         startOnlinePolling();
       } catch (error) {
@@ -2099,14 +2509,24 @@
     }
 
     async function leaveOnlineRoom() {
+      try {
+        await releaseOnlineSeat();
+      } catch (error) {
+        state.online.lastError = error.message;
+      }
       clearOnlineTimers();
       state.online.active = false;
       state.online.connected = false;
       state.online.roomId = '';
       state.online.role = null;
+      state.online.hostClientId = null;
+      state.online.xClientId = null;
+      state.online.oClientId = null;
       state.online.version = 0;
       state.online.lastSyncAt = null;
       localStorage.removeItem(ROOM_ID_KEY);
+      syncRoomUrl('');
+      roomIdInput.value = '';
       setOnlineStatus('Online público desligado', '');
       state.mode = 'pvp';
       updateModeButtons();
@@ -2129,6 +2549,7 @@
     }
 
     function setMode(mode) {
+      const previousMode = state.mode;
       state.mode = mode;
       updateModeButtons();
       render();
@@ -2136,9 +2557,15 @@
         state.online.active = true;
         void ensureOnlineRoom();
       } else {
+        if (previousMode === 'online' && state.online.connected) {
+          void releaseOnlineSeat();
+        }
+        syncRoomUrl('');
         state.online.active = false;
         state.online.connected = false;
+        state.online.role = null;
         stopOnlinePolling();
+        updateOnlineControls();
       }
       scheduleAiTurn();
     }
@@ -2351,7 +2778,7 @@
       footerText.textContent = state.gameOver
         ? 'Fim de jogo. Use Nova partida para recomeçar ou Desfazer jogada para voltar um lance.'
         : state.mode === 'online'
-          ? `Sala ${state.online.roomId || 'não conectada'} · ${state.online.role === 'spectator' ? 'espectador' : state.online.role || 'sem papel'}`
+          ? `Sala ${state.online.roomId || 'não conectada'} · ${roleLabel(state.online.role)}`
         : state.mode === 'battle'
           ? 'Modo Batalha de IAs ligado: deixe a tela aberta para assistir aos lances automáticos.'
           : state.mode === 'ai-x' || state.mode === 'ai-o'
@@ -2415,6 +2842,7 @@
 
       undoBtn.disabled = state.moveStack.length === 0 || state.mode === 'online';
       newGameBtn.textContent = 'Nova partida';
+      updateOnlinePresence();
       if (state.mode === 'online') updateOnlineControls();
       else scheduleAiTurn();
     }
@@ -2436,15 +2864,66 @@
       const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
       setTheme(next);
     });
+    copyRoomLinkBtn.addEventListener('click', () => { void copyCurrentRoomLink(); });
+    joinRoomBtn.addEventListener('click', () => {
+      const roomId = normalizeRoomId(roomIdInput.value);
+      if (!roomId) {
+        setOnlineStatus('Digite um código válido para entrar.', 'warn');
+        return;
+      }
+      state.mode = 'online';
+      state.online.active = true;
+      updateModeButtons();
+      void connectOnlineState(roomId, false);
+      render();
+    });
+    createRoomBtn.addEventListener('click', () => {
+      const roomId = normalizeRoomId(roomIdInput.value) || generateRoomId();
+      state.mode = 'online';
+      state.online.active = true;
+      updateModeButtons();
+      void connectOnlineState(roomId, true);
+      render();
+    });
+    publicRoomBtn.addEventListener('click', () => {
+      roomIdInput.value = PUBLIC_ROOM_ID;
+      state.mode = 'online';
+      state.online.active = true;
+      updateModeButtons();
+      void connectOnlineState(PUBLIC_ROOM_ID, false);
+      render();
+    });
+    reconnectRoomBtn.addEventListener('click', () => {
+      const roomId = normalizeRoomId(roomIdInput.value) || getPreferredRoomId();
+      state.mode = 'online';
+      state.online.active = true;
+      updateModeButtons();
+      void connectOnlineState(roomId, false);
+      render();
+    });
+    leaveRoomBtn.addEventListener('click', () => { void leaveOnlineRoom(); });
+    roomIdInput.addEventListener('input', () => {
+      roomIdInput.value = normalizeRoomId(roomIdInput.value);
+    });
+    roomIdInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        joinRoomBtn.click();
+      }
+    });
 
     loadTheme();
     loadClientId();
-    state.mode = 'online';
-    state.online.active = true;
-    copyRoomLinkBtn.addEventListener('click', () => { void copyCurrentRoomLink(); });
-    leaveRoomBtn.addEventListener('click', () => { void leaveOnlineRoom(); });
     resetMatch();
-    void ensureOnlineRoom();
+    roomIdInput.value = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || localStorage.getItem(ROOM_ID_KEY) || '');
+    const bootRoomId = normalizeRoomId(new URL(window.location.href).searchParams.get('room') || localStorage.getItem(ROOM_ID_KEY) || '');
+    if (bootRoomId) {
+      state.mode = 'online';
+      state.online.active = true;
+      updateModeButtons();
+      render();
+      void connectOnlineState(bootRoomId, false);
+    }
   </script>
 </body>
 </html>
