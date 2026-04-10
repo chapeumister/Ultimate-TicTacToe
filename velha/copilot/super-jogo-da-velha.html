@@ -1260,7 +1260,7 @@
       stopOnlinePolling();
       state.online.pollTimer = setInterval(() => {
         refreshOnlineRoom(false);
-      }, 1250);
+      }, 350);
     }
 
     function roomLink(roomId) {
@@ -2058,7 +2058,7 @@
           state.online.lastError = error.message;
           setOnlineStatus(`Falha de sincronização: ${error.message}`, 'bad');
         }
-      }, 120);
+      }, 40);
     }
 
     async function connectOnlineState(roomId, createFresh = false) {
