@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/velha/copilot/super-jogo-da-velha.html"
+    }
+  ]
+}
