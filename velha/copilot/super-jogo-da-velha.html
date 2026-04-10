@@ -1151,6 +1151,7 @@
     const aiCache = new Map();
     const state = {
       boards: [],
+      startingPlayer: 'X',
       currentPlayer: 'X',
       nextBoard: null,
       gameOver: false,
@@ -1425,7 +1426,8 @@
       state.aiTimer = null;
       state.aiBusy = false;
       state.boards = Array.from({ length: 9 }, createBoard);
-      state.currentPlayer = 'X';
+      state.currentPlayer = state.startingPlayer;
+      state.startingPlayer = state.startingPlayer === 'X' ? 'O' : 'X';
       state.nextBoard = null;
       state.gameOver = false;
       state.winner = null;
@@ -2375,7 +2377,7 @@
       if (state.nextBoard !== null && state.boards[state.nextBoard]?.status === 'ongoing') {
         return `Tabuleiro ${state.nextBoard + 1}`;
       }
-      return 'Qualquer tabuleiro';
+      return 'Qualquer tabuleiro aberto';
     }
 
     function getResultMessage() {
@@ -2410,7 +2412,7 @@
       return {
         title: `Turno de ${state.currentPlayer}`,
         body: playable.length
-          ? 'O próximo jogador pode escolher qualquer mini-tabuleiro ainda aberto.'
+          ? 'O mini-tabuleiro destino já foi fechado. Jogue em qualquer tabuleiro aberto.'
           : 'Não há mais mini-tabuleiros disponíveis.',
       };
     }
@@ -2447,7 +2449,7 @@
       targetText.innerHTML = state.gameOver
         ? `<strong class="status-draw">Encerrado</strong>`
         : freeChoice
-          ? `<strong class="turn-free">Qualquer tabuleiro</strong>`
+          ? `<strong class="turn-free">Qualquer tabuleiro aberto</strong>`
           : `<strong class="turn-free">Tabuleiro ${state.nextBoard + 1}</strong>`;
       resultText.innerHTML = state.gameOver
         ? (state.winner ? `<strong class="status-win">${getResultMessage()}</strong>` : `<strong class="status-draw">${getResultMessage()}</strong>`)
@@ -2479,7 +2481,7 @@
             : state.mode === 'ai-o'
               ? `Você controla o X enquanto a IA joga em ${getAiProfile().label.toLowerCase()}.`
           : freeChoice
-            ? 'O próximo jogador pode escolher qualquer mini-tabuleiro ainda disponível. O painel ganha destaque verde para reforçar a liberdade.'
+            ? 'O mini-tabuleiro destino já foi fechado. O próximo jogador pode escolher qualquer tabuleiro aberto.'
             : state.lastMove
               ? `Último lance: ${state.lastMove.player} abriu o fluxo para o mini-tabuleiro ${state.nextBoard + 1}.`
               : 'O destaque mostra onde a proxima jogada precisa acontecer.';
@@ -2523,8 +2525,8 @@
           state.gameOver && state.globalLine.includes(boardIndex) ? 'macro-win' : '',
         ].filter(Boolean).join(' ');
 
-        const statusLabel = isWon ? board.status : isDraw ? 'Empate' : '';
-        const tag = isWon ? `Vencido por ${board.status}` : isDraw ? 'Empatado' : required ? 'Ativo' : free ? 'Livre' : '';
+        const statusLabel = isWon ? 'Fechado' : isDraw ? 'Empate' : '';
+        const tag = isWon ? `Fechado por ${board.status}` : isDraw ? 'Fechado por empate' : required ? 'Obrigatório' : free ? 'Disponível' : '';
 
         const cellsHtml = [];
         for (let row = 0; row < 3; row++) {
