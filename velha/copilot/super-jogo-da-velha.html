@@ -414,8 +414,8 @@
 
     .board-shell {
       position: relative;
-      padding: 12px;
-      border-radius: 16px;
+      padding: 10px;
+      border-radius: 14px;
       border: 1px solid var(--line);
       background: radial-gradient(circle at top, rgba(0,200,150,.04), transparent 40%), #101010;
       overflow: hidden;
@@ -424,8 +424,8 @@
     .board-shell::before {
       content: "";
       position: absolute;
-      inset: 12px;
-      border-radius: 12px;
+      inset: 10px;
+      border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.03);
       pointer-events: none;
     }
@@ -433,7 +433,7 @@
     .board-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
+      gap: 5px;
       aspect-ratio: 1 / 1;
       position: relative;
       z-index: 1;
@@ -462,7 +462,7 @@
       min-height: 0;
       display: flex;
       flex-direction: column;
-      padding: 7px;
+      padding: 6px;
     }
 
     .mini-board .mini-cells .cell-row {
@@ -773,12 +773,12 @@
 
     @media (max-width: 760px) {
       .shell {
-        width: min(100% - 16px, 100%);
-        padding: 10px 0 20px;
+        width: min(100% - 4px, 100%);
+        padding: 4px 0 10px;
       }
 
       .hero-top {
-        gap: 12px;
+        gap: 10px;
       }
 
       .board-panel {
@@ -796,7 +796,7 @@
       }
 
       .hero {
-        padding: 14px;
+        padding: 10px;
       }
 
       h1 {
@@ -830,30 +830,58 @@
       }
 
       .board-grid {
-        gap: 6px;
+        gap: 3px;
+      }
+
+      .board-panel {
+        padding: 6px;
+        gap: 8px;
+      }
+
+      .board-panel-header p,
+      .footer {
+        display: none;
       }
 
       .mini-header {
         display: none;
       }
 
+      .status-strip {
+        display: none;
+      }
+
+      .status-banner {
+        padding: 10px 12px;
+        border-radius: 10px;
+      }
+
+      .board-shell {
+        padding: 6px;
+        border-radius: 9px;
+      }
+
+      .board-shell::before {
+        inset: 6px;
+        border-radius: 7px;
+      }
+
       .mini-board {
-        padding: 2px;
-        border-radius: 5px;
+        border-radius: 4px;
       }
 
       .mini-board .mini-cells {
-        padding: 4px;
+        padding: 2px;
       }
 
       .cell {
-        border-radius: 3px;
-        font-size: clamp(0.9rem, 6vw, 1.3rem);
+        border-radius: 2px;
+        font-size: clamp(1rem, 7vw, 1.55rem);
         overflow: hidden;
       }
 
       .mini-board-status {
-        font-size: clamp(1.5rem, 9vw, 2.3rem);
+        font-size: clamp(1.7rem, 11vw, 2.6rem);
       }
     }
   </style>
