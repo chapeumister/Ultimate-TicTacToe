@@ -2541,12 +2541,10 @@
 
     function getTargetMessage() {
       if (state.gameOver) return 'Partida encerrada';
-      const playable = getPlayableBoards();
-      if (playable.length === 0) return 'Nenhum tabuleiro disponível';
       if (state.nextBoard !== null && state.boards[state.nextBoard]?.status === 'ongoing') {
-        return `Tabuleiro ${state.nextBoard + 1}`;
+        return 'Obrigatório';
       }
-      return 'Qualquer tabuleiro aberto';
+      return 'Livre';
     }
 
     function getResultMessage() {
@@ -2554,8 +2552,8 @@
         return state.winner ? `${state.winner} venceu` : 'Empate';
       }
       return state.nextBoard !== null && state.boards[state.nextBoard]?.status === 'ongoing'
-        ? 'Tabuleiro obrigatório'
-        : 'Livre';
+        ? 'Jogada obrigatória'
+        : 'Jogada livre';
     }
 
     function getMessage() {
@@ -2635,12 +2633,12 @@
         : state.mode === 'battle'
           ? 'Treino automatico'
           : state.mode === 'ai-x'
-            ? 'X IA ativo'
-            : state.mode === 'ai-o'
-              ? 'O IA ativo'
-              : freeChoice
+          ? 'X IA ativo'
+          : state.mode === 'ai-o'
+            ? 'O IA ativo'
+            : freeChoice
                 ? 'Jogada livre'
-                : `Tabuleiro obrigatório ${state.nextBoard + 1}`;
+                : 'Jogada obrigatória';
       bannerSubtitle.textContent = state.gameOver
         ? 'Partida encerrada. Reinicie ou volte um lance para continuar ajustando.'
         : state.mode === 'online'
@@ -2652,10 +2650,8 @@
             : state.mode === 'ai-o'
               ? `Você controla o X enquanto a IA joga em ${getAiProfile().label.toLowerCase()}.`
           : freeChoice
-            ? 'O mini-tabuleiro destino já foi fechado. O próximo jogador pode escolher qualquer tabuleiro aberto.'
-            : state.lastMove
-              ? `Último lance: ${state.lastMove.player} abriu o fluxo para o mini-tabuleiro ${state.nextBoard + 1}.`
-              : 'O destaque mostra onde a proxima jogada precisa acontecer.';
+          ? 'O mini-tabuleiro destino já foi fechado. O próximo jogador pode escolher qualquer tabuleiro aberto.'
+            : '';
 
       scoreX.textContent = state.scores.X;
       scoreO.textContent = state.scores.O;
