@@ -1179,16 +1179,16 @@
     const CLIENT_ID_KEY = 'sjv-client-id';
     const ROOM_ID_KEY = 'sjv-room-id';
     const AI_SEARCH = {
-      maxCache: 8000,
+      maxCache: 16000,
       baseDepth: 4,
-      endgameDepth: 5,
-      branchCutoff: 7,
+      endgameDepth: 6,
+      branchCutoff: 10,
     };
     const AI_LEVELS = {
-      easy: { label: 'Fácil', maxDepth: 2, deadline: 10, poolSize: 4, randomness: 0.28, blockChance: 0.72, search: false },
-      medium: { label: 'Média', maxDepth: 4, deadline: 24, poolSize: 6, randomness: 0.1, blockChance: 0.92, search: true },
-      hard: { label: 'Difícil', maxDepth: 6, deadline: 60, poolSize: 8, randomness: 0.02, blockChance: 0.99, search: true },
-      insane: { label: 'Imbatível', maxDepth: 8, deadline: 140, poolSize: 10, randomness: 0, blockChance: 1, search: true },
+      easy: { label: 'Fácil', maxDepth: 2, deadline: 12, poolSize: 4, randomness: 0.28, blockChance: 0.72, search: false, exact: false, fullWidth: false },
+      medium: { label: 'Média', maxDepth: 5, deadline: 30, poolSize: 7, randomness: 0.1, blockChance: 0.94, search: true, exact: false, fullWidth: false },
+      hard: { label: 'Difícil', maxDepth: 7, deadline: 80, poolSize: 10, randomness: 0.02, blockChance: 0.99, search: true, exact: false, fullWidth: false },
+      insane: { label: 'Imbatível', maxDepth: 10, deadline: 260, poolSize: 999, randomness: 0, blockChance: 1, search: true, exact: true, fullWidth: true },
     };
     const aiCache = new Map();
     const state = {
@@ -1678,6 +1678,31 @@
       return wins;
     }
 
+    function countForkMoves(board, player) {
+      if (board.status !== 'ongoing') return 0;
+      let forks = 0;
+      for (let cellIndex = 0; cellIndex < 9; cellIndex += 1) {
+        if (board.cells[cellIndex]) continue;
+        const cells = board.cells.slice();
+        cells[cellIndex] = player;
+        const outcome = boardOutcome(cells);
+        if (outcome.winner === player) {
+          forks += 1;
+          continue;
+        }
+        const openLines = LINES.reduce((acc, line) => {
+          const values = line.map(index => cells[index]);
+          const pCount = values.filter(v => v === player).length;
+          const oCount = values.filter(v => v && v !== player).length;
+          const empty = values.filter(v => !v).length;
+          if (pCount === 2 && oCount === 0 && empty === 1) acc += 1;
+          return acc;
+        }, 0);
+        if (openLines >= 2) forks += 1;
+      }
+      return forks;
+    }
+
     function simulateMove(snapshot, move, player) {
       const next = copySnapshot(snapshot);
       const board = next.boards[move.boardIndex];
@@ -1769,8 +1794,12 @@
         const target = snapshot.boards[snapshot.nextBoard];
         const enemyThreats = countImmediateWins(target, opponent).length;
         const ourThreats = countImmediateWins(target, player).length;
+        const enemyForks = countForkMoves(target, opponent);
+        const ourForks = countForkMoves(target, player);
         score += ourThreats * 240;
         score -= enemyThreats * 380;
+        score += ourForks * 220;
+        score -= enemyForks * 310;
         score += evaluateBoardLines(target, player) * 0.7;
         score -= evaluateBoardLines(target, opponent) * 0.8;
       } else {
@@ -1808,15 +1837,23 @@
       const preOpponentWins = countImmediateWins(preBoard, opponent).length;
       const postOpponentWins = board.status === 'ongoing' ? countImmediateWins(board, opponent).length : 0;
       const postPlayerWins = board.status === 'ongoing' ? countImmediateWins(board, player).length : 0;
+      const postPlayerForks = board.status === 'ongoing' ? countForkMoves(board, player) : 0;
+      const postOpponentForks = board.status === 'ongoing' ? countForkMoves(board, opponent) : 0;
       if (preOpponentWins > 0 && postOpponentWins === 0) score += 900;
       if (postPlayerWins > 0) score += 240;
       if (postOpponentWins > 0) score -= 420;
+      score += postPlayerForks * 260;
+      score -= postOpponentForks * 340;
 
       if (target && target.status === 'ongoing') {
         const oppThreats = countImmediateWins(target, opponent).length;
         const playerThreats = countImmediateWins(target, player).length;
+        const oppForks = countForkMoves(target, opponent);
+        const playerForks = countForkMoves(target, player);
         score -= oppThreats * 520;
         score += playerThreats * 180;
+        score -= oppForks * 360;
+        score += playerForks * 210;
       } else if (!next.gameOver) {
         score += 180;
       }
@@ -1824,15 +1861,17 @@
       return score;
     }
 
-    function orderMoves(snapshot, moves, player) {
+    function orderMoves(snapshot, moves, player, profile = getAiProfile()) {
       const scored = moves.map(move => ({
         move,
         score: moveTacticalScore(snapshot, move, player),
       }));
       scored.sort((a, b) => b.score - a.score);
-      const cutoff = snapshot.boards.filter(board => board.status === 'ongoing').length > 4
-        ? AI_SEARCH.branchCutoff
-        : Math.min(12, moves.length);
+      const cutoff = profile.fullWidth
+        ? scored.length
+        : snapshot.boards.filter(board => board.status === 'ongoing').length > 4
+          ? AI_SEARCH.branchCutoff
+          : Math.min(12, moves.length);
       return scored.slice(0, Math.min(cutoff, scored.length));
     }
 
@@ -1968,16 +2007,15 @@
       const depth = determineSearchDepth(snapshot, moves.length, profile);
       const ranked = tacticalCandidates
         .sort((a, b) => b.moveScore - a.moveScore)
-        .slice(0, Math.min(profile.poolSize, tacticalCandidates.length));
+      const searchPool = profile.fullWidth
+        ? ranked
+        : ranked.slice(0, Math.min(profile.poolSize, tacticalCandidates.length));
 
-      let bestMove = ranked[0].move;
+      let bestMove = searchPool[0].move;
       let bestScore = -Infinity;
       const deadline = Date.now() + profile.deadline;
 
-      const ordered = [
-        ...ranked.slice(0, 1),
-        ...ranked.slice(1),
-      ];
+      const ordered = searchPool;
       const searchDepths = profile.search ? Array.from({ length: depth }, (_, i) => i + 1) : [0];
 
       for (const searchDepth of searchDepths) {
@@ -2000,16 +2038,16 @@
         if (Date.now() > deadline) break;
       }
 
-      if (profile.randomness > 0 && ranked.length > 1) {
-        const spread = Math.max(1, Math.round(ranked.length * 0.35));
-        const pool = ranked.slice(0, spread);
+      if (profile.randomness > 0 && searchPool.length > 1) {
+        const spread = Math.max(1, Math.round(searchPool.length * 0.35));
+        const pool = searchPool.slice(0, spread);
         const roll = Math.random();
         if (roll < profile.randomness) {
           return pool[Math.floor(Math.random() * pool.length)].move;
         }
       }
 
-      if (bestScore === -Infinity) return chooseBest(ranked);
+      if (bestScore === -Infinity) return chooseBest(searchPool);
       return bestMove;
     }
 
